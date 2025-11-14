@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核医药产业大屏数据展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            overflow-y: auto; /* 允许垂直滚动 */
+            min-height: 100vh; /* 最小高度100vh */
+        }
+
+        /* 粒子背景 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* 主容器 */
+        .dashboard-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 75vh; /* 进一步缩短高度到75vh，界面更紧凑 */
+            padding: 10px; /* 减小padding */
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 10px; /* 减小gap */
+            align-items: stretch; /* 让所有列拉伸到相同高度 */
+        }
+
+        /* 标题栏 */
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 15px; /* 减小padding */
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header h1 {
+            font-size: 36px; /* 减小字体 */
+            font-weight: bold;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+            margin-bottom: 8px; /* 减小间距 */
+        }
+
+        .header .subtitle {
+            font-size: 14px; /* 减小字体 */
+            color: #a0aec0;
+            letter-spacing: 2px;
+        }
+
+        .header .time {
+            font-size: 13px; /* 减小字体 */
+            color: #4ade80;
+            margin-top: 6px; /* 减小间距 */
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(30, 30, 60, 0.6);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 12px; /* 减小padding */
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        /* 弹性卡片 - 自动填充剩余空间 */
+        .flex-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0; /* 重要：允许flex子元素缩小 */
+        }
+
+        .flex-card .scroll-list,
+        .flex-card .data-stream {
+            flex: 1;
+            max-height: 200px; /* 减小高度，让滚动更明显 */
+            overflow-y: auto;
+            min-height: 0; /* 重要：允许flex子元素缩小 */
+        }
+
+        /* 地图弹性卡片特殊处理 */
+        .flex-card #china-map {
+            flex: 1;
+            height: auto;
+            min-height: 0;
+        }
+
+        /* 左侧列 */
+        .left-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%; /* 使用height让列拉伸到相同高度 */
+            overflow-y: visible; /* 改为visible，不滚动整个列，避免遮挡顶部板块 */
+        }
+
+        /* 右侧列 */
+        .right-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            height: 100%; /* 使用height让列拉伸到相同高度 */
+            overflow-y: visible; /* 改为visible，让内容自然展开 */
+        }
+
+        /* 中间地图区域 */
+        .map-container {
+            grid-row: 2;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* 使用height让列拉伸到相同高度 */
+        }
+
+        #china-map {
+            width: 100%;
+            height: 100%; /* 使用100%高度，配合flex-card自动填充 */
+            position: relative; /* 确保定位正确 */
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); /* 深色科技背景 */
+            /* 科技感网格背景 */
+            background-image:
+                linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+                linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            background-size: 50px 50px, 50px 50px, 100% 100%;
+        }
+
+
+
+        /* 统计数字卡片 */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(90deg, #4ade80 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-unit {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-left: 5px;
+        }
+
+        /* 滚动列表 */
+        .scroll-list {
+            max-height: 200px; /* 调整为200px，缩短高度 */
+            overflow-y: auto;
+            padding-right: 10px;
+            scroll-behavior: smooth;
+        }
+
+        .scroll-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scroll-list::-webkit-scrollbar-track {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 3px;
+        }
+
+        .scroll-list::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 3px;
+        }
+
+        /* 左右列滚动条样式 */
+        .left-column::-webkit-scrollbar,
+        .right-column::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .left-column::-webkit-scrollbar-track,
+        .right-column::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .left-column::-webkit-scrollbar-thumb,
+        .right-column::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 2px;
+        }
+
+        .left-column::-webkit-scrollbar-thumb:hover,
+        .right-column::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+
+        .list-item {
+            padding: 8px;
+            background: rgba(102, 126, 234, 0.05);
+            border-left: 3px solid #667eea;
+            margin-bottom: 6px;
+            border-radius: 5px;
+            font-size: 14px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 数字跳动动画 */
+        .count-up {
+            display: inline-block;
+            animation: countUp 2s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* 脉冲动画 */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        /* 图标样式 */
+        .icon {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        /* 实时数据流 */
+        .data-stream {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #4ade80;
+            line-height: 1.8;
+            max-height: 180px; /* 增加高度，让地图相对变小 */
+            overflow-y: auto;
+        }
+
+        /* 固定高度卡片 - 用于实时数据 */
+        .fixed-height-card {
+            flex: 0 0 auto; /* 不拉伸，保持固定 */
+        }
+
+        /* 闪烁效果 */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .blink {
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        /* 自动滚动动画 */
+        @keyframes autoScroll {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-50%);
+            }
+        }
+
+        .auto-scroll-container {
+            animation: autoScroll 30s linear infinite;
+        }
+
+        .auto-scroll-container:hover {
+            animation-play-state: paused;
+        }
+
+        /* 返回主页按钮 */
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-home-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.5);
+        }
+
+        .back-home-btn::before {
+            content: '←';
+            font-size: 20px;
+        }
+
+        /* 脉冲动画 */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(1.1);
+            }
+        }
+
+        /* 静态地图标记点样式 */
+        .static-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        .marker-dot {
+            width: 25px;
+            height: 25px;
+            background: var(--marker-color, #667eea);
+            border-radius: 50%;
+            box-shadow:
+                0 0 20px var(--marker-color, #667eea),
+                0 0 40px var(--marker-color, #667eea),
+                0 0 60px rgba(255, 255, 255, 0.3);
+            animation: markerPulse 2s ease-in-out infinite;
+            position: relative;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .marker-dot.marker-small {
+            width: 18px;
+            height: 18px;
+        }
+
+        .marker-label {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 8px 12px;
+            border-radius: 6px;
+            line-height: 16px;
+            text-align: center;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes markerPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
+        }
+
+        /* 标记点悬停效果 */
+        .static-marker:hover .marker-dot {
+            animation: none;
+            transform: scale(1.3);
+            box-shadow:
+                0 0 30px var(--marker-color, #667eea),
+                0 0 60px var(--marker-color, #667eea),
+                0 0 90px rgba(255, 255, 255, 0.5);
+        }
+
+        .static-marker:hover .marker-label {
+            background: rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回主页按钮 -->
+    <button class="back-home-btn" onclick="window.location.href='index.html'">
+        返回主页
+    </button>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <!-- 主容器 -->
+    <div class="dashboard-container">
+        <!-- 标题栏 -->
+        <div class="header">
+            <h1>🔬 核医药产业全景数据大屏</h1>
+            <div class="subtitle">NUCLEAR MEDICINE INDUSTRY DATA DASHBOARD</div>
+            <div class="time" id="currentTime"></div>
+        </div>
+
+        <!-- 左侧列 -->
+        <div class="left-column">
+            <!-- 全国布局统计 -->
+            <div class="card">
+                <div class="card-title">📍 四川省核医疗产业布局</div>
+                <div class="stat-item">
+                    <span class="stat-label">布局城市</span>
+                    <div>
+                        <span class="stat-value count-up" data-target="4">0</span>
+                        <span class="stat-unit">个</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">发展格局</span>
+                    <div>
+                        <span class="stat-value" style="font-size: 16px;">一链四极</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 重点省份城市列表 -->
+            <div class="card flex-card">
+                <div class="card-title">🏙️ 核医药重点布局城市</div>
+                <div class="scroll-list" id="cityList">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 实时数据 -->
+            <div class="card flex-card">
+                <div class="card-title">📡 实时产业数据</div>
+                <div class="data-stream" id="dataStream">
+                    <div class="pulse">► 系统正在加载实时数据...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中间地图区域 -->
+        <div class="map-container">
+            <!-- 地图卡片 -->
+            <div class="card flex-card">
+                <div class="card-title">🗺️ 四川省核医药产业分布—"一链四极"</div>
+                <!-- 地图区域 -->
+                <div id="china-map">
+                    <!-- 加载指示器 -->
+                    <div id="map-loading" style="display: flex; align-items: center; justify-content: center; height: 100%; min-height: 200px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 20px; animation: pulse 2s infinite;">🗺️</div>
+                            <div style="font-size: 18px; color: #667eea;">正在加载地图数据...</div>
+                            <div style="font-size: 14px; color: #a0aec0; margin-top: 10px;">请稍候</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧列 -->
+        <div class="right-column">
+            <!-- 四川重点区域 -->
+            <div class="card">
+                <div class="card-title">⭐ 泸州市核医药产业布局</div>
+
+                <!-- 产业园数量 -->
+                <div style="margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, rgba(74, 222, 128, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%); border-radius: 12px; border: 1px solid rgba(74, 222, 128, 0.2);">
+                    <div style="font-size: 13px; color: #a0aec0; margin-bottom: 6px;">产业园数量</div>
+                    <div style="display: flex; align-items: baseline; gap: 8px;">
+                        <div style="font-size: 48px; font-weight: bold; background: linear-gradient(90deg, #4ade80 0%, #3b82f6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">2</div>
+                        <div style="font-size: 18px; color: #667eea;">个</div>
+                    </div>
+                </div>
+
+                <!-- 一园两区 -->
+                <div style="padding: 15px; background: rgba(33, 150, 243, 0.08); border-radius: 12px; border-left: 4px solid #2196f3;">
+                    <div style="font-size: 15px; color: #4ade80; margin-bottom: 12px; font-weight: 600;">
+                        🏭 西南核医疗产业园 - "一园两区"
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <!-- 泸县园区 -->
+                        <div style="padding: 12px; background: rgba(74, 222, 128, 0.15); border-radius: 10px; border: 2px solid rgba(74, 222, 128, 0.3);">
+                            <div style="font-size: 14px; color: #4ade80; margin-bottom: 8px; font-weight: 600;">泸县园区</div>
+                            <div style="font-size: 12px; color: #a0aec0; line-height: 1.6;">
+                                规划面积<br>
+                                <span style="color: #4ade80; font-size: 20px; font-weight: bold;">8500</span> <span style="font-size: 13px;">亩</span>
+                            </div>
+                        </div>
+                        <!-- 江阳园区 -->
+                        <div style="padding: 12px; background: rgba(33, 150, 243, 0.15); border-radius: 10px; border: 2px solid rgba(33, 150, 243, 0.3);">
+                            <div style="font-size: 14px; color: #2196f3; margin-bottom: 8px; font-weight: 600;">江阳园区</div>
+                            <div style="font-size: 12px; color: #a0aec0; line-height: 1.6;">
+                                配套服务<br>
+                                <span style="color: #2196f3; font-size: 20px; font-weight: bold;">临床</span> <span style="font-size: 13px;">应用</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 泸州交通枢纽优势 -->
+            <div class="card flex-card">
+                <div class="card-title">🚄 泸州交通枢纽优势</div>
+
+                <!-- 滚动容器 -->
+                <div id="transportScroll" class="scroll-list">
+                        <!-- 区位优势 -->
+                        <div style="margin-bottom: 8px; padding: 8px; background: rgba(74, 222, 128, 0.08); border-radius: 6px; border-left: 3px solid #4ade80;">
+                            <div style="font-size: 11px; color: #4ade80; margin-bottom: 3px; font-weight: 600;">📍 区位优势</div>
+                            <div style="font-size: 11px; color: #a0aec0; line-height: 1.4;">
+                                川滇黔渝四省交界 · 成渝双城经济圈中心
+                            </div>
+                        </div>
+
+                        <!-- 关键数据 -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                            <div style="padding: 8px; background: rgba(33, 150, 243, 0.08); border-radius: 6px; text-align: center;">
+                                <div style="font-size: 10px; color: #a0aec0; margin-bottom: 2px;">距成都</div>
+                                <div style="font-size: 20px; font-weight: bold; color: #2196f3; line-height: 1;">230</div>
+                                <div style="font-size: 9px; color: #667eea;">公里</div>
+                            </div>
+                            <div style="padding: 8px; background: rgba(33, 150, 243, 0.08); border-radius: 6px; text-align: center;">
+                                <div style="font-size: 10px; color: #a0aec0; margin-bottom: 2px;">距重庆</div>
+                                <div style="font-size: 20px; font-weight: bold; color: #2196f3; line-height: 1;">130</div>
+                                <div style="font-size: 9px; color: #667eea;">公里</div>
+                            </div>
+                        </div>
+
+                        <!-- 交通设施 -->
+                        <div style="margin-bottom: 8px; padding: 8px; background: rgba(240, 147, 251, 0.08); border-radius: 6px;">
+                            <div style="font-size: 11px; color: #a0aec0; line-height: 1.6;">
+                                <div style="margin-bottom: 3px;">
+                                    <span style="color: #f093fb;">✈️</span> 云龙机场：<span style="color: #f093fb; font-weight: bold;">44</span>个城市直达
+                                </div>
+                                <div style="margin-bottom: 3px;">
+                                    <span style="color: #667eea;">🚢</span> 泸州港：四川省<span style="color: #667eea; font-weight: bold;">第一</span>大水运港
+                                </div>
+                                <div>
+                                    <span style="color: #4ade80;">🛣️</span> 高速公路：川南<span style="color: #4ade80; font-weight: bold;">第一</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 双通道优势 -->
+                        <div style="padding: 6px 10px; background: rgba(255, 82, 82, 0.1); border-radius: 6px; text-align: center; margin-bottom: 8px;">
+                            <div style="font-size: 10px; color: #ff5252; font-weight: 600;">
+                                🌐 四川唯一国际水运+陆运双通道城市
+                            </div>
+                        </div>
+
+                        <!-- 综合交通枢纽 -->
+                        <div style="margin-bottom: 8px; padding: 8px; background: rgba(102, 126, 234, 0.08); border-radius: 6px;">
+                            <div style="font-size: 11px; color: #667eea; margin-bottom: 4px; font-weight: 600;">🚉 综合交通枢纽</div>
+                            <div style="font-size: 10px; color: #a0aec0; line-height: 1.6;">
+                                集铁路、公路、航空、水路为一体
+                            </div>
+                        </div>
+
+                        <!-- 高速公路网络 -->
+                        <div style="padding: 8px; background: rgba(74, 222, 128, 0.08); border-radius: 6px;">
+                            <div style="font-size: 11px; color: #4ade80; margin-bottom: 4px; font-weight: 600;">🛣️ 高速公路网络</div>
+                            <div style="font-size: 10px; color: #a0aec0; line-height: 1.6;">
+                                "一环七射一横"骨架 · 通车里程川南第一
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <!-- ECharts库 - 本地加载 -->
+    <script src="libs/echarts.min.js"></script>
+
+    <script>
+        // 简化版粒子背景(不依赖外部库)
+        function createParticles() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('particles-js');
+            container.appendChild(canvas);
+
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+
+            const particles = [];
+            const particleCount = 80;
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.vx = (Math.random() - 0.5) * 2;
+                    this.vy = (Math.random() - 0.5) * 2;
+                    this.radius = Math.random() * 3 + 1;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+
+                // 绘制连线
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(102, 126, 234, ${0.4 * (1 - distance / 150)})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // 启动粒子背景
+        createParticles();
+
+        // 实时时间更新
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 数字滚动动画
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = end > start ? 1 : -1;
+            const stepTime = Math.abs(Math.floor(duration / range));
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment * Math.ceil(range / 100);
+                if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, stepTime);
+        }
+
+        // 初始化数字动画
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.count-up').forEach(el => {
+                const target = parseInt(el.getAttribute('data-target'));
+                animateValue(el, 0, target, 2000);
+            });
+
+            // 进度条动画
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(el => {
+                    const width = el.getAttribute('data-width');
+                    el.style.width = width;
+                });
+            }, 500);
+        });
+
+        // 城市数据 - 扩展全国布局
+        // 四川省"一链四极"核医疗产业园布局（真实数据）
+        const cities = [
+            { province: '四川', city: '泸州', type: '核医疗产业园', description: '西南核医疗产业园 - 临床转化应用极', detail: '2024年9月揭牌，规划8500亩，新型核素诊疗量全国第一', level: 1 },
+            { province: '四川', city: '绵阳市游仙区', type: '核医疗健康产业园', description: '核医疗健康产业园 - 装备制造极', detail: '主体结构已封顶，全国建设速度最快', level: 1 },
+            { province: '四川', city: '成都医学城', type: '放射性药物产业园', description: '放射性药物产业园 - 科技创新极', detail: '核医疗装备研发、核药研发', level: 1 },
+            { province: '四川', city: '成都天府国际生物城', type: '核医疗产业园', description: '核医疗产业园 - 科技创新极', detail: '生物医药与核医疗融合发展', level: 1 },
+            { province: '四川', city: '乐山市夹江县', type: '核技术应用产业园', description: '核技术应用产业园 - 同位素生产极', detail: '反应堆资源优势，医用同位素和核素原料药生产', level: 1 }
+        ];
+
+        // 渲染城市列表
+        function renderCityList() {
+            const cityList = document.getElementById('cityList');
+            cities.forEach((item, index) => {
+                setTimeout(() => {
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    div.innerHTML = `
+                        <div style="margin-bottom: 15px;">
+                            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                                <span style="color: #4ade80; font-weight: bold; font-size: 16px;">${item.city}</span>
+                                <span style="color: #a0aec0; font-size: 12px; margin-left: 10px;">[${item.type}]</span>
+                            </div>
+                            <div style="color: #667eea; font-size: 13px; margin-bottom: 5px;">${item.description}</div>
+                            <div style="color: #a0aec0; font-size: 12px; line-height: 1.5;">${item.detail}</div>
+                        </div>
+                    `;
+                    cityList.appendChild(div);
+                }, index * 300);
+            });
+        }
+
+        // 实时数据流 - 四川省"一链四极"核医疗产业园信息
+        const dataMessages = [
+            '► 四川省核医疗产业发展格局: 一链四极',
+            '► 核医疗产业园数量: 4个',
+            '► 目标: 打造世界级核医疗产业发展高地',
+
+            // 泸州 - 临床转化应用极
+            '► 泸州: 西南核医疗产业园',
+            '► 泸州产业园规模: 8500亩',
+            '► 泸州揭牌时间: 2024年9月',
+            '► 新型核素诊疗量: 全国第一',
+            '► 年核诊疗量: 1.6万人次',
+            '► 辐射范围: 全国30多个省市',
+            '► 177Lu-PSMA治疗: 全国领先',
+            '► 90Y微球治疗: 西南首例',
+            '► 225Ac治疗: 国内唯一',
+
+            // 泸州核医疗基金
+            '► 泸州星空核医疗创业投资基金: 四川首只核医疗专项基金',
+            '► 基金总规模: 10亿元',
+            '► 基金首期: 5亿元',
+            '► 发布时间: 2025年4月10日',
+            '► 管理机构: 成都光耀星空股权投资管理有限公司',
+            '► 投资方向: 创新核药研发生产、CRDMO产业链、核医疗装备',
+            '► 泸州产业投资基金群: 总规模550亿元',
+            '► 产业引导母基金: 50亿元',
+            '► 云龙机场: 全省首个医用同位素运输支线机场',
+            '► 稳定同位素项目: 全国首个商业化电磁法生产项目',
+            '► 稳定同位素投资: 2亿元以上',
+            '► 生产产品: 镱-176、钆-160、铷-87等珍贵同位素',
+
+            // 成都 - 科技创新极
+            '► 成都: 核医疗研发中心',
+            '► 成都优势: 核医疗装备研发',
+            '► 成都重点: 核药研发创新',
+
+            // 绵阳 - 装备制造极
+            '► 绵阳: 核医疗产业园',
+            '► 绵阳进度: 主体结构已封顶',
+            '► 绵阳速度: 全国建设最快',
+            '► 绵阳定位: 装备制造基地',
+
+            // 乐山 - 同位素生产极
+            '► 乐山: 医用同位素生产基地',
+            '► 乐山优势: 反应堆资源',
+            '► 乐山重点: 医用同位素生产',
+            '► 乐山产品: 核素原料药',
+
+            // 产业目标
+            '► 2027年目标: 国内领先产业集群',
+            '► 2030年目标: 全球最大同位素生产基地',
+            '► 2030年目标: 全国最大放射性药物生产地',
+            '► 2030年目标: 全国最好核医疗中心',
+
+            // 临床应用
+            '► 177Lu-PSMA: 前列腺癌精准治疗',
+            '► 68Ga-DOTATATE: 神经内分泌肿瘤诊断',
+            '► 核医学人才: 全国首个核医药产业学院',
+            '► 产业链: 医用同位素→放射性药物→装备→临床',
+            '► 广元三堆镇: 放射性固体废物处理处置中心',
+            '► 桶外搅拌水泥固化技术: 国内领先',
+            '► 有机废液热解焚烧工程: 已投入运行',
+            '► 高放玻璃固化建设: 完成冷试',
+            '► 四川省辐射环境管理监测中心: 公益化监管',
+            '► 城市放射性废物库: 运行管理中',
+            '► 核动力研究设计院: 30余项发明专利',
+            '► 核设施退役工程实验室: 技术国际先进',
+            '► 四川核废处理: 覆盖商业化+公益化+研发'
+        ];
+
+        let messageIndex = 0;
+        function updateDataStream() {
+            const dataStream = document.getElementById('dataStream');
+            const message = dataMessages[messageIndex];
+            const div = document.createElement('div');
+            div.textContent = message;
+            div.style.opacity = '0';
+            div.style.transition = 'opacity 0.5s';
+
+            dataStream.appendChild(div);
+            setTimeout(() => div.style.opacity = '1', 10);
+
+            // 保持最多10条消息
+            while (dataStream.children.length > 10) {
+                dataStream.removeChild(dataStream.firstChild);
+            }
+
+            messageIndex = (messageIndex + 1) % dataMessages.length;
+        }
+
+        setInterval(updateDataStream, 2000);
+        setTimeout(updateDataStream, 1000);
+
+        // 显示地图加载错误
+        function showMapError(error) {
+            console.error('显示地图错误信息:', error);
+            document.getElementById('china-map').innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #a0aec0;">
+                    <div style="text-align: center; max-width: 600px; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🗺️</div>
+                        <div style="font-size: 18px; margin-bottom: 20px; color: #fff;">四川省核医疗产业园分布图</div>
+                        <div style="margin-top: 20px; font-size: 14px; line-height: 2.5;">
+                            <div style="color: #4ade80; font-size: 16px;">● 泸州: 西南核医疗产业园（临床转化应用极）</div>
+                            <div style="color: #667eea; margin-top: 8px; font-size: 16px;">● 成都: 核医疗研发中心（科技创新极）</div>
+                            <div style="color: #3b82f6; margin-top: 8px; font-size: 16px;">● 绵阳: 核医疗产业园（装备制造极）</div>
+                            <div style="color: #fbbf24; margin-top: 8px; font-size: 16px;">● 乐山: 医用同位素生产基地（同位素生产极）</div>
+                            <div style="color: #10b981; margin-top: 8px; font-size: 16px;">● 泸县: 产业核心区（西南核医疗产业园）</div>
+                            <div style="margin-top: 25px; color: #667eea; font-size: 15px; border-top: 1px solid rgba(102, 126, 234, 0.3); padding-top: 20px;">
+                                📊 四川省"一链四极"核医疗产业发展格局
+                            </div>
+                            <div style="margin-top: 15px; color: #ff6b6b; font-size: 12px; background: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 5px;">
+                                ⚠️ 地图加载失败: ${error.message}<br>
+                                <span style="color: #a0aec0; font-size: 11px;">请检查网络连接或稍后重试</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 本地备用地图数据（简化版四川省GeoJSON）
+        const localSichuanMapData = {
+            "type": "FeatureCollection",
+            "features": [{
+                "type": "Feature",
+                "properties": {"name": "四川省"},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [97.35, 33.00], [108.55, 33.00], [108.55, 26.05], [97.35, 26.05], [97.35, 33.00]
+                    ]]
+                }
+            }]
+        };
+
+        // 静态地图备用方案（使用最新的四川省地图 - 蓝色系，泸州红色突出）
+        function showStaticMap() {
+            console.log('使用静态地图备用方案（最新四川省地图 - 包含21个市/州边界）');
+            const mapContainer = document.getElementById('china-map');
+
+            // 移除加载指示器
+            const loadingIndicator = document.getElementById('map-loading');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+
+            mapContainer.innerHTML = `
+                <div style="position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);">
+                    <!-- 科技感网格背景 -->
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image:
+                        linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
+                        background-size: 50px 50px; opacity: 0.3;"></div>
+
+                    <!-- 静态地图背景 - 最新生成的四川省地图（蓝色系，泸州红色突出） -->
+                    <img src="基础知识_html/地图/images/地图.png" alt="四川省地图" style="max-width: 95%; max-height: 95%; object-fit: contain; filter: drop-shadow(0 0 20px rgba(33, 150, 243, 0.5)) brightness(0.9) contrast(1.1);">
+
+                    <!-- SVG连线层 -->
+                    <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                            <!-- 定义发光滤镜 -->
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <!-- 定义流动动画 -->
+                            <linearGradient id="lineGradient">
+                                <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.3"/>
+                                <stop offset="50%" stop-color="#4ade80" stop-opacity="1"/>
+                                <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.3"/>
+                            </linearGradient>
+                        </defs>
+
+                        <!-- 环状连线 -->
+                        <path d="M 45 50 Q 47.5 42.5 50 35" stroke="#00d4ff" stroke-width="0.3" fill="none" opacity="0.8" filter="url(#glow)">
+                            <animate attributeName="stroke-dasharray" from="0,10" to="10,0" dur="2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M 50 35 Q 45 50 40 65" stroke="#00d4ff" stroke-width="0.3" fill="none" opacity="0.8" filter="url(#glow)">
+                            <animate attributeName="stroke-dasharray" from="0,10" to="10,0" dur="2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M 40 65 Q 50 67.5 60 70" stroke="#00d4ff" stroke-width="0.3" fill="none" opacity="0.8" filter="url(#glow)">
+                            <animate attributeName="stroke-dasharray" from="0,10" to="10,0" dur="2s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M 60 70 Q 52.5 60 45 50" stroke="#00d4ff" stroke-width="0.3" fill="none" opacity="0.8" filter="url(#glow)">
+                            <animate attributeName="stroke-dasharray" from="0,10" to="10,0" dur="2s" repeatCount="indefinite"/>
+                        </path>
+
+                        <!-- 交叉连线 -->
+                        <path d="M 45 50 Q 42.5 57.5 40 65" stroke="#00d4ff" stroke-width="0.25" fill="none" opacity="0.6" filter="url(#glow)" stroke-dasharray="2,2">
+                            <animate attributeName="stroke-dashoffset" from="0" to="4" dur="1.5s" repeatCount="indefinite"/>
+                        </path>
+                        <path d="M 50 35 Q 55 52.5 60 70" stroke="#00d4ff" stroke-width="0.25" fill="none" opacity="0.6" filter="url(#glow)" stroke-dasharray="2,2">
+                            <animate attributeName="stroke-dashoffset" from="0" to="4" dur="1.5s" repeatCount="indefinite"/>
+                        </path>
+                    </svg>
+
+                    <!-- 产业园标记点容器 -->
+                    <div id="static-markers" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <!-- 泸州 - 临床转化应用极（红色突出，与地图一致） -->
+                        <div class="static-marker" style="left: 60%; top: 70%; --marker-color: #ff5252;"
+                             data-city="泸州"
+                             data-desc="西南核医疗产业园 - 临床转化应用极"
+                             data-detail="2024年9月揭牌，规划8471亩，新型核素诊疗量全国第一">
+                            <div class="marker-dot"></div>
+                            <div class="marker-label">泸州<br>临床转化应用极</div>
+                        </div>
+
+                        <!-- 成都 - 科技创新极（蓝色系） -->
+                        <div class="static-marker" style="left: 45%; top: 50%; --marker-color: #2196f3;"
+                             data-city="成都"
+                             data-desc="核医疗研发中心 - 科技创新极"
+                             data-detail="核医疗装备研发、核药研发">
+                            <div class="marker-dot"></div>
+                            <div class="marker-label">成都<br>科技创新极</div>
+                        </div>
+
+                        <!-- 绵阳 - 装备制造极（蓝色系） -->
+                        <div class="static-marker" style="left: 50%; top: 35%; --marker-color: #1976d2;"
+                             data-city="绵阳"
+                             data-desc="核医疗产业园 - 装备制造极"
+                             data-detail="主体结构已封顶，全国建设速度最快">
+                            <div class="marker-dot"></div>
+                            <div class="marker-label">绵阳<br>装备制造极</div>
+                        </div>
+
+                        <!-- 乐山 - 同位素生产极（蓝色系） -->
+                        <div class="static-marker" style="left: 40%; top: 65%; --marker-color: #1565c0;"
+                             data-city="乐山"
+                             data-desc="医用同位素生产基地 - 同位素生产极"
+                             data-detail="反应堆资源优势，医用同位素和核素原料药生产">
+                            <div class="marker-dot"></div>
+                            <div class="marker-label">乐山<br>同位素生产极</div>
+                        </div>
+                    </div>
+
+                    <!-- Tooltip -->
+                    <div id="static-tooltip" style="display: none; position: absolute; background: rgba(0, 0, 0, 0.9); color: white; padding: 15px; border-radius: 8px; border: 2px solid #667eea; pointer-events: none; z-index: 1000; max-width: 300px;">
+                        <div id="tooltip-city" style="font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #4ade80;"></div>
+                        <div id="tooltip-desc" style="font-size: 13px; margin-bottom: 5px; color: #667eea;"></div>
+                        <div id="tooltip-detail" style="font-size: 12px; color: #a0aec0; line-height: 1.5;"></div>
+                    </div>
+                </div>
+            `;
+
+            // 添加标记点交互
+            setTimeout(() => {
+                const markers = document.querySelectorAll('.static-marker');
+                const tooltip = document.getElementById('static-tooltip');
+
+                markers.forEach(marker => {
+                    marker.style.pointerEvents = 'auto';
+                    marker.style.cursor = 'pointer';
+
+                    marker.addEventListener('mouseenter', function(e) {
+                        const city = this.getAttribute('data-city');
+                        const desc = this.getAttribute('data-desc');
+                        const detail = this.getAttribute('data-detail');
+                        const markerColor = this.style.getPropertyValue('--marker-color');
+
+                        document.getElementById('tooltip-city').textContent = city;
+                        document.getElementById('tooltip-desc').textContent = desc;
+                        document.getElementById('tooltip-detail').textContent = detail;
+
+                        // 根据城市设置tooltip颜色（泸州和泸县用红色，其他用蓝色）
+                        const cityElement = document.getElementById('tooltip-city');
+                        if (city === '泸州') {
+                            cityElement.style.color = '#ff5252';
+                            tooltip.style.borderColor = '#ff5252';
+                        } else {
+                            cityElement.style.color = '#2196f3';
+                            tooltip.style.borderColor = '#2196f3';
+                        }
+
+                        tooltip.style.display = 'block';
+                    });
+
+                    marker.addEventListener('mousemove', function(e) {
+                        tooltip.style.left = (e.pageX + 15) + 'px';
+                        tooltip.style.top = (e.pageY + 15) + 'px';
+                    });
+
+                    marker.addEventListener('mouseleave', function() {
+                        tooltip.style.display = 'none';
+                    });
+                });
+            }, 100);
+        }
+
+        // 初始化地图 - 使用简化版成功方案
+        function initMap() {
+            console.log('开始初始化地图...');
+            console.log('ECharts是否加载:', typeof echarts !== 'undefined');
+
+            // 检查地图容器
+            const mapContainer = document.getElementById('china-map');
+            if (!mapContainer) {
+                console.error('❌ 地图容器元素不存在!');
+                return;
+            }
+
+            // 检查容器尺寸
+            const containerRect = mapContainer.getBoundingClientRect();
+            console.log('地图容器尺寸:', {
+                width: containerRect.width,
+                height: containerRect.height,
+                offsetWidth: mapContainer.offsetWidth,
+                offsetHeight: mapContainer.offsetHeight
+            });
+
+            if (typeof echarts === 'undefined') {
+                console.warn('⚠️ ECharts未加载，使用静态地图备用方案');
+                showStaticMap();
+                return;
+            }
+
+            // 移除加载指示器
+            const loadingIndicator = document.getElementById('map-loading');
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'none';
+            }
+
+            // 确保容器有高度
+            if (mapContainer.offsetHeight === 0) {
+                console.warn('⚠️ 地图容器高度为0，设置默认高度');
+                mapContainer.style.height = '600px';
+            }
+
+            const mapChart = echarts.init(mapContainer);
+            console.log('地图容器初始化完成，ECharts实例:', mapChart);
+
+            // 四川省"一链四极"城市坐标数据（移除广元和泸县）
+            const cityCoords = {
+                '泸州': [105.443, 28.889],
+                '成都': [104.066, 30.572],
+                '绵阳': [104.679, 31.467],
+                '乐山': [103.761, 29.582]
+            };
+
+            const cityData = cities.map(item => ({
+                name: item.city,
+                coord: cityCoords[item.city],
+                description: item.description,
+                detail: item.detail,
+                type: item.type,
+                level: item.level
+            }));
+
+            // 转换为散点数据格式
+            const scatterData = cityData.map(item => ({
+                name: item.name,
+                value: [...item.coord, 1], // 第三个值用于大小计算
+                description: item.description,
+                detail: item.detail,
+                type: item.type,
+                level: item.level,
+                itemStyle: {
+                    color: item.name === '泸州' ? '#4ade80' :
+                           item.name === '泸县' ? '#10b981' :
+                           item.name === '成都' ? '#667eea' :
+                           item.name === '绵阳' ? '#3b82f6' :
+                           item.name === '乐山' ? '#fbbf24' : '#667eea'
+                }
+            }));
+
+            console.log('散点数据数量:', scatterData.length);
+            console.log('产业园城市:', scatterData.map(item => item.name).join(', '));
+
+
+
+            // 简化的地图配置 - 深色科技风格
+            const option = {
+                backgroundColor: 'transparent',  // 使用外层容器的深色背景
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        const cityInfo = scatterData.find(c => c.name === params.name);
+                        if (cityInfo) {
+                            return `<div style="padding: 5px;">
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px; color: #4ade80;">${params.name}</div>
+                                <div style="font-size: 13px; margin-bottom: 5px; color: #667eea;">${cityInfo.description}</div>
+                                <div style="font-size: 12px; color: #a0aec0; line-height: 1.5;">${cityInfo.detail}</div>
+                            </div>`;
+                        }
+                        return params.name;
+                    },
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    borderColor: function(params) {
+                        // 泸州使用红色边框
+                        if (params.name === '泸州') {
+                            return '#ff5252';
+                        }
+                        // 其他城市使用蓝色边框
+                        return '#2196f3';
+                    },
+                    borderWidth: 2,
+                    textStyle: {
+                        color: '#fff'
+                    },
+                    padding: 15
+                },
+                geo: {
+                    map: 'sichuan',
+                    roam: true,
+                    zoom: 1.6,
+                    center: [104.0, 30.5],
+                    label: {
+                        emphasis: {
+                            show: true,
+                            color: '#fff'
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            areaColor: 'rgba(33, 150, 243, 0.08)',  // 更暗的蓝色，适配深色背景
+                            borderColor: 'rgba(0, 212, 255, 0.5)',  // 亮蓝色边界，科技感
+                            borderWidth: 2,
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 212, 255, 0.3)'
+                        },
+                        emphasis: {
+                            areaColor: 'rgba(33, 150, 243, 0.25)',  // 悬停时的蓝色
+                            borderColor: 'rgba(0, 212, 255, 0.8)',
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 212, 255, 0.5)'
+                        }
+                    }
+                },
+                series: [
+                    // "一链" - 产业链连线
+                    {
+                        name: '产业链',
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 1,
+                        effect: {
+                            show: true,
+                            period: 4,  // 加快流动速度
+                            trailLength: 0.5,
+                            color: '#4ade80',  // 绿色流动效果
+                            symbolSize: 6,  // 增大流动点
+                            shadowBlur: 10,
+                            shadowColor: '#4ade80'
+                        },
+                        lineStyle: {
+                            color: '#00d4ff',  // 亮蓝色，科技感
+                            width: 3,
+                            curveness: 0.2,
+                            opacity: 0.8,
+                            shadowBlur: 10,
+                            shadowColor: '#00d4ff'
+                        },
+                        data: [
+                            // 形成产业链闭环：成都(研发) → 绵阳(装备) → 乐山(同位素) → 泸州(临床) → 成都
+                            { coords: [[104.066, 30.572], [104.679, 31.467]] }, // 成都 → 绵阳
+                            { coords: [[104.679, 31.467], [103.761, 29.582]] }, // 绵阳 → 乐山
+                            { coords: [[103.761, 29.582], [105.443, 28.889]] }, // 乐山 → 泸州
+                            { coords: [[105.443, 28.889], [104.066, 30.572]] }, // 泸州 → 成都
+                            // 添加交叉连线，形成网状连接
+                            { coords: [[104.066, 30.572], [103.761, 29.582]] }, // 成都 → 乐山
+                            { coords: [[104.679, 31.467], [105.443, 28.889]] }  // 绵阳 → 泸州
+                        ]
+                    },
+                    // 所有产业园散点 - 显示标签（蓝色系，与新地图一致）
+                    {
+                        name: '核医疗产业园',
+                        type: 'scatter',
+                        coordinateSystem: 'geo',
+                        data: scatterData,
+                        symbolSize: function(val, params) {
+                            // 泸州使用最大的标记（红色突出）
+                            if (params.name === '泸州') {
+                                return 28;
+                            }
+                            // 其他城市使用统一大小
+                            return 24;
+                        },
+                        itemStyle: {
+                            color: function(params) {
+                                // 泸州使用红色
+                                if (params.name === '泸州') {
+                                    return '#ff5252';
+                                }
+                                // 其他城市使用蓝色系
+                                const blueColors = {
+                                    '成都': '#2196f3',
+                                    '绵阳': '#1976d2',
+                                    '乐山': '#1565c0'
+                                };
+                                return blueColors[params.name] || '#42a5f5';
+                            },
+                            shadowBlur: 10,
+                            shadowColor: function(params) {
+                                return params.name === '泸州' ? '#ff5252' : '#2196f3';
+                            }
+                        },
+                        label: {
+                            formatter: function(params) {
+                                const roleMap = {
+                                    '泸州': '泸州\n临床转化应用极',
+                                    '成都': '成都\n科技创新极',
+                                    '绵阳': '绵阳\n装备制造极',
+                                    '乐山': '乐山\n同位素生产极'
+                                };
+                                return roleMap[params.name] || params.name;
+                            },
+                            position: 'right',
+                            show: true,
+                            color: '#fff',
+                            fontSize: 11,
+                            backgroundColor: function(params) {
+                                // 泸州使用红色背景
+                                if (params.name === '泸州') {
+                                    return 'rgba(255, 82, 82, 0.8)';
+                                }
+                                // 其他城市使用蓝色背景
+                                return 'rgba(33, 150, 243, 0.8)';
+                            },
+                            padding: [6, 10],
+                            borderRadius: 4,
+                            lineHeight: 16
+                        }
+                    },
+                    // 泸州核心产业园涟漪效果（红色突出，与新地图一致）
+                    {
+                        name: '核心产业园',
+                        type: 'effectScatter',
+                        coordinateSystem: 'geo',
+                        data: scatterData.filter(item => item.name === '泸州'),
+                        symbolSize: 32,
+                        showEffectOn: 'render',
+                        rippleEffect: {
+                            brushType: 'stroke',
+                            scale: 4.5,
+                            period: 2.5
+                        },
+                        label: {
+                            formatter: '泸州\n临床转化应用极',
+                            position: 'right',
+                            show: true,
+                            color: '#fff',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            backgroundColor: 'rgba(255, 82, 82, 0.9)',  // 红色背景
+                            padding: [8, 12],
+                            borderRadius: 4,
+                            lineHeight: 18,
+                            borderColor: '#fff',
+                            borderWidth: 1
+                        },
+                        itemStyle: {
+                            color: '#ff5252',  // 红色标记点
+                            shadowBlur: 20,
+                            shadowColor: '#ff5252'  // 红色阴影
+                        }
+                    }
+                ]
+            };
+
+            console.log('地图配置完成,准备加载地图JSON...');
+
+            // 多个在线地图数据源（按优先级排序）
+            const mapDataSources = [
+                'https://geo.datav.aliyun.com/areas_v3/bound/510000_full.json',
+                'https://cdn.jsdelivr.net/npm/echarts-map-china@1.0.0/provinces/sichuan.json',
+                'https://unpkg.com/echarts-map-china@1.0.0/provinces/sichuan.json',
+                'https://fastly.jsdelivr.net/npm/echarts-map-china@1.0.0/provinces/sichuan.json'
+            ];
+
+            let currentSourceIndex = 0;
+
+            // 智能加载地图数据函数（带超时控制）
+            function loadMapData() {
+                if (currentSourceIndex >= mapDataSources.length) {
+                    // 所有在线源都失败，使用本地备用数据
+                    console.warn('⚠️ 所有在线地图源均加载失败，使用本地备用数据');
+                    try {
+                        echarts.registerMap('sichuan', localSichuanMapData);
+                        mapChart.setOption(option);
+                        console.log('✅ 使用本地备用地图数据渲染成功');
+
+                        // 强制重绘
+                        setTimeout(() => {
+                            mapChart.resize();
+                            console.log('地图已重绘');
+                        }, 100);
+                    } catch (error) {
+                        console.error('❌ 本地地图数据加载失败:', error);
+                        showMapError(error);
+                    }
+                    return;
+                }
+
+                const currentSource = mapDataSources[currentSourceIndex];
+                console.log(`尝试加载地图数据源 [${currentSourceIndex + 1}/${mapDataSources.length}]:`, currentSource);
+
+                // 添加超时控制
+                const fetchTimeout = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('请求超时')), 5000);
+                });
+
+                const fetchData = fetch(currentSource)
+                    .then(response => {
+                        console.log('地图JSON响应状态:', response.status);
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP错误! 状态: ${response.status}`);
+                        }
+
+                        return response.text();
+                    })
+                    .then(text => {
+                        try {
+                            const sichuanJson = JSON.parse(text);
+                            console.log('✅ 地图JSON解析成功');
+                            console.log('数据源:', currentSource);
+                            console.log('地图数据类型:', sichuanJson.type);
+                            console.log('地图特征数量:', sichuanJson.features ? sichuanJson.features.length : 0);
+
+                            echarts.registerMap('sichuan', sichuanJson);
+                            mapChart.setOption(option);
+                            console.log('✅ 四川省地图渲染成功! 显示', scatterData.length, '个城市');
+
+                            // 强制重绘
+                            setTimeout(() => {
+                                mapChart.resize();
+                                console.log('地图已重绘');
+                            }, 100);
+                        } catch (parseError) {
+                            console.error('❌ JSON解析失败:', parseError);
+                            throw new Error('地图数据格式错误: ' + parseError.message);
+                        }
+                    });
+
+                // 使用Promise.race实现超时
+                Promise.race([fetchData, fetchTimeout])
+                    .catch(error => {
+                        console.warn(`❌ 数据源 [${currentSourceIndex + 1}] 加载失败:`, error.message);
+                        currentSourceIndex++;
+                        loadMapData(); // 尝试下一个数据源
+                    });
+            }
+
+            // 开始加载地图数据
+            console.log('开始加载四川省地图JSON...');
+            loadMapData();
+
+            // 响应式
+            window.addEventListener('resize', () => {
+                if (mapChart) {
+                    mapChart.resize();
+                }
+            });
+        }
+
+        // 自动滚动功能
+        function initAutoScroll() {
+            const cityList = document.getElementById('cityList');
+            const transportScroll = document.getElementById('transportScroll');
+
+            // 为城市列表添加独立的自动滚动（不滚动整个左侧列，避免遮挡顶部板块）
+            if (cityList) {
+                console.log('为城市列表添加自动滚动');
+                autoScrollElement(cityList, 40); // 稍慢的速度，40px/秒
+            }
+
+            // 为交通枢纽板块添加独立的自动滚动
+            if (transportScroll) {
+                console.log('为交通枢纽板块添加自动滚动');
+                autoScrollElement(transportScroll, 30); // 更慢的速度，30px/秒
+            }
+        }
+
+        function autoScrollElement(element, speed = 50) {
+            let scrollInterval;
+            let isPaused = false;
+
+            // 检查是否需要滚动
+            const needsScroll = element.scrollHeight > element.clientHeight;
+
+            if (!needsScroll) {
+                console.log('内容未超出，不需要自动滚动');
+                return; // 内容未超出，不需要滚动
+            }
+
+            console.log('启动自动滚动，scrollHeight:', element.scrollHeight, 'clientHeight:', element.clientHeight);
+
+            // 开始自动滚动
+            function startScroll() {
+                scrollInterval = setInterval(() => {
+                    if (!isPaused) {
+                        element.scrollTop += 1;
+
+                        // 滚动到底部后，平滑返回顶部
+                        if (element.scrollTop >= element.scrollHeight - element.clientHeight) {
+                            clearInterval(scrollInterval);
+                            setTimeout(() => {
+                                element.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth'
+                                });
+                                // 返回顶部后重新开始滚动
+                                setTimeout(startScroll, 1000);
+                            }, 2000); // 在底部停留2秒
+                        }
+                    }
+                }, 1000 / speed); // 根据速度计算间隔
+            }
+
+            // 鼠标悬停时暂停
+            element.addEventListener('mouseenter', () => {
+                isPaused = true;
+            });
+
+            // 鼠标移开时继续
+            element.addEventListener('mouseleave', () => {
+                isPaused = false;
+            });
+
+            startScroll();
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            console.log('页面加载完成');
+            console.log('城市数据数量:', cities.length);
+            renderCityList();
+            console.log('准备初始化地图...');
+
+            // 等待DOM完全渲染后再初始化地图
+            setTimeout(() => {
+                console.log('开始初始化地图（延迟执行）');
+                initMap();
+            }, 1000);
+
+            // 延迟启动自动滚动，让数据先加载
+            setTimeout(initAutoScroll, 2000);
+        });
+
+        // DOM内容加载完成时也尝试初始化（双重保险）
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM内容加载完成');
+
+            // 检查地图容器是否存在
+            const mapContainer = document.getElementById('china-map');
+            if (mapContainer) {
+                console.log('地图容器已找到');
+            } else {
+                console.error('地图容器未找到!');
+            }
+        });
+
+        // 添加错误监听
+        window.addEventListener('error', (e) => {
+            console.error('页面错误:', e.message, e.filename, e.lineno);
+        });
+    </script>
+</body>
+</html>

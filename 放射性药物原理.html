@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>放射性药物作用原理 - 核医药赛道</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #334155;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            max-width: 1400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #8B5CF6, #EF4444, #3B82F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .diagram-wrapper {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+
+        .diagram-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: block;
+        }
+
+        /* 热区容器 */
+        .hotspot-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        /* 热区基础样式 */
+        .hotspot {
+            position: absolute;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .hotspot:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.15);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6),
+                        0 0 40px rgba(139, 92, 246, 0.4),
+                        inset 0 0 20px rgba(139, 92, 246, 0.2);
+            transform: scale(1.05);
+        }
+
+        .hotspot.active {
+            border-color: #EF4444;
+            background: rgba(239, 68, 68, 0.15);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+
+        /* 热区标签 */
+        .hotspot-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .hotspot:hover .hotspot-label {
+            opacity: 1;
+        }
+
+        /* 具体热区位置定义 */
+        /* 1. 放射性药物 - 左侧整体区域 */
+        .hotspot-drug {
+            left: 3%;
+            top: 10%;
+            width: 28%;
+            height: 85%;
+        }
+
+        /* 2. 人体组织 - 中间人体图 */
+        .hotspot-human {
+            left: 38%;
+            top: 8%;
+            width: 28%;
+            height: 88%;
+        }
+
+        /* 3. 靶向肿瘤组织 - 人体内肿瘤部位 */
+        .hotspot-tumor {
+            left: 42%;
+            top: 25%;
+            width: 12%;
+            height: 15%;
+        }
+
+        /* 4. 辐射粒子/能量 - 右上区域 */
+        .hotspot-radiation-energy {
+            left: 70%;
+            top: 15%;
+            width: 25%;
+            height: 35%;
+        }
+
+        /* 5. 杀死细胞组织 - 右下区域 */
+        .hotspot-cell-death {
+            left: 70%;
+            top: 52%;
+            width: 25%;
+            height: 38%;
+        }
+
+        /* 脉冲动画 */
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(139, 92, 246, 0);
+            }
+        }
+
+        /* 发光动画 */
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.8),
+                            0 0 30px rgba(139, 92, 246, 0.6);
+            }
+        }
+
+        .description {
+            margin-top: 30px;
+            text-align: left;
+            line-height: 1.8;
+            color: #475569;
+            font-size: 15px;
+        }
+
+        .description h3 {
+            color: #1F2937;
+            font-size: 18px;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .description p {
+            margin-bottom: 15px;
+        }
+
+        /* 信息面板 */
+        .info-panel {
+            position: fixed;
+            right: -450px;
+            top: 0;
+            width: 450px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .info-panel.show {
+            right: 0;
+        }
+
+        .info-panel-header {
+            background: linear-gradient(135deg, #8B5CF6, #EF4444);
+            color: white;
+            padding: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .info-panel-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .info-panel-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .info-panel-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .info-panel-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .info-panel-content {
+            padding: 30px;
+            line-height: 1.8;
+            color: #334155;
+        }
+
+        .info-panel-content h4 {
+            color: #1F2937;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E2E8F0;
+        }
+
+        .info-panel-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .info-panel-content p {
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .info-panel-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .info-panel-content li {
+            margin-bottom: 8px;
+        }
+
+        /* 背景遮罩 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            .page-title {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+
+            .description {
+                font-size: 14px;
+            }
+
+            .description h3 {
+                font-size: 16px;
+            }
+
+            .info-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .hotspot-label {
+                font-size: 10px;
+                padding: 3px 8px;
+            }
+        }
+
+        /* 全屏查看模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            width: 95%;
+            height: 95%;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #EF4444;
+        }
+
+        /* 高清查看按钮 */
+        .hd-view-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .hd-view-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        /* iframe样式 */
+        .modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* 返回主页按钮 */
+        .back-home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1002;
+            cursor: pointer;
+        }
+
+        .back-home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .back-home-btn:active {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回主页按钮 -->
+    <a href="index.html" class="back-home-btn">
+        <span>←</span>
+        <span>返回主页</span>
+    </a>
+
+    <div class="container">
+        <h1 class="page-title">放射性药物作用原理</h1>
+
+        <!-- 高清查看按钮 -->
+        <div style="text-align: center; margin-bottom: 15px;">
+            <button class="hd-view-btn" onclick="openHDView()">
+                <span>🔍</span>
+                <span>高清查看</span>
+            </button>
+        </div>
+
+        <div class="image-container">
+            <div class="diagram-wrapper">
+                <img src="基础知识_html/核医药原理图/images/核医药原理图.png" alt="放射性药物作用原理图" class="diagram-image">
+
+                <!-- 热区容器 -->
+                <div class="hotspot-container">
+                    <!-- 1. 放射性药物 -->
+                    <div class="hotspot hotspot-drug" data-element="drug">
+                        <div class="hotspot-label">放射性药物</div>
+                    </div>
+
+                    <!-- 2. 人体组织 -->
+                    <div class="hotspot hotspot-human" data-element="human">
+                        <div class="hotspot-label">人体组织</div>
+                    </div>
+
+                    <!-- 3. 靶向肿瘤组织 -->
+                    <div class="hotspot hotspot-tumor" data-element="tumor">
+                        <div class="hotspot-label">靶向肿瘤组织</div>
+                    </div>
+
+                    <!-- 4. 辐射粒子/能量 -->
+                    <div class="hotspot hotspot-radiation-energy" data-element="radiation-energy">
+                        <div class="hotspot-label">辐射粒子/能量</div>
+                    </div>
+
+                    <!-- 5. 杀死细胞组织 -->
+                    <div class="hotspot hotspot-cell-death" data-element="cell-death">
+                        <div class="hotspot-label">杀死细胞组织</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="description">
+            <h3>📌 放射性药物的基本组成</h3>
+            <p>放射性药物由三个核心部分组成：<strong>放射性核素</strong>、<strong>螯合剂</strong>和<strong>配体</strong>。放射性核素提供诊断或治疗所需的放射性；螯合剂作为连接桥梁，将放射性核素牢固地结合到配体上；配体则负责识别和结合靶组织或肿瘤细胞。</p>
+
+            <h3>🎯 靶向作用机制</h3>
+            <p>放射性药物通过静脉注射进入人体后，配体引导整个分子识别并特异性结合肿瘤细胞表面的受体。这种靶向性使得放射性核素能够在肿瘤组织中富集，同时减少对正常组织的损伤。</p>
+
+            <h3>⚡ 治疗原理</h3>
+            <p>富集在肿瘤组织中的放射性核素通过放射性衰变持续释放高能粒子（如α粒子、β粒子）和射线（如γ射线）。这些辐射能够直接破坏肿瘤细胞的DNA，导致细胞死亡，从而达到治疗效果。</p>
+
+            <h3>💡 临床应用</h3>
+            <p>常用的放射性核素包括碘-131（甲状腺癌治疗）、镥-177（神经内分泌肿瘤治疗）、锕-225（前列腺癌治疗）等。不同的核素具有不同的半衰期、辐射类型和能量特性，适用于不同类型的肿瘤治疗。</p>
+        </div>
+    </div>
+
+    <!-- 背景遮罩 -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- 信息面板 -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-panel-header">
+            <div class="info-panel-title" id="panelTitle">元素标题</div>
+            <div class="info-panel-subtitle" id="panelSubtitle">元素副标题</div>
+            <button class="info-panel-close" id="closePanel">&times;</button>
+        </div>
+        <div class="info-panel-content" id="panelContent">
+            <!-- 内容将通过JavaScript动态填充 -->
+        </div>
+    </div>
+
+    <!-- 全屏查看模态框 -->
+    <div class="modal" id="imageModal" onclick="closeModal(event)">
+        <span class="close-modal">&times;</span>
+        <iframe src="基础知识_html/核医药原理图/index.html" class="modal-content modal-iframe" onclick="event.stopPropagation()"></iframe>
+    </div>
+
+    <script>
+        // 元素信息数据
+        const elementInfo = {
+            drug: {
+                title: '放射性药物',
+                subtitle: 'Radiopharmaceutical',
+                content: `
+                    <h4>💊 整体结构与组成</h4>
+                    <p>放射性药物是由<strong>放射性核素</strong>、<strong>螯合剂</strong>和<strong>配体</strong>三个核心部分通过化学键连接而成的复合分子。这种"三明治"结构设计使得放射性药物既具有放射性（用于诊断或治疗），又具有靶向性（精准定位病灶）。</p>
+
+                    <h4>🔬 三大核心组分</h4>
+                    <ul>
+                        <li><strong>放射性核素</strong>：
+                            <ul>
+                                <li>提供诊断或治疗所需的放射性</li>
+                                <li>常用核素：I-131、Lu-177、Ac-225、Tc-99m、F-18等</li>
+                                <li>通过放射性衰变释放α、β或γ射线</li>
+                                <li>半衰期、辐射类型和能量决定临床应用</li>
+                            </ul>
+                        </li>
+                        <li><strong>螯合剂</strong>：
+                            <ul>
+                                <li>作为"分子桥梁"连接核素和配体</li>
+                                <li>常用螯合剂：DOTA、DTPA、NOTA等</li>
+                                <li>通过多齿配位键牢固结合放射性金属离子</li>
+                                <li>确保药物在体内循环时结构稳定</li>
+                            </ul>
+                        </li>
+                        <li><strong>配体</strong>：
+                            <ul>
+                                <li>具有靶向性的生物分子</li>
+                                <li>类型：单克隆抗体、多肽、小分子抑制剂等</li>
+                                <li>特异性识别肿瘤细胞表面受体或抗原</li>
+                                <li>引导药物精准定位到病灶部位</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🔄 协同作用机制</h4>
+                    <p>三个组分协同工作，实现精准治疗：</p>
+                    <ul>
+                        <li><strong>配体</strong>：识别并结合肿瘤细胞表面的特异性受体，实现靶向定位</li>
+                        <li><strong>螯合剂</strong>：稳定连接放射性核素和配体，确保结构完整性，防止核素游离</li>
+                        <li><strong>放射性核素</strong>：在靶点持续释放辐射能量，杀伤肿瘤细胞或产生成像信号</li>
+                    </ul>
+
+                    <h4>🎯 工作流程</h4>
+                    <ol>
+                        <li><strong>给药</strong>：通过静脉注射进入血液循环</li>
+                        <li><strong>循环</strong>：在血液中运输，配体保持活性</li>
+                        <li><strong>识别</strong>：配体识别肿瘤细胞表面的靶点</li>
+                        <li><strong>结合</strong>：药物与肿瘤细胞特异性结合</li>
+                        <li><strong>内化</strong>：部分药物被细胞吞噬进入细胞内</li>
+                        <li><strong>辐射</strong>：放射性核素持续释放辐射，杀伤肿瘤细胞</li>
+                        <li><strong>清除</strong>：未结合的药物通过肾脏或肝脏代谢清除</li>
+                    </ol>
+
+                    <h4>📊 分类</h4>
+                    <p><strong>按用途分类</strong>：</p>
+                    <ul>
+                        <li><strong>诊断性放射性药物</strong>：使用γ或正电子发射体（如Tc-99m、F-18），用于SPECT或PET成像</li>
+                        <li><strong>治疗性放射性药物</strong>：使用α或β发射体（如Lu-177、Ac-225），用于肿瘤治疗</li>
+                        <li><strong>诊疗一体化药物</strong>：同一配体可标记不同核素，实现诊断和治疗（如Ga-68/Lu-177-DOTATATE）</li>
+                    </ul>
+
+                    <h4>✨ 优势特点</h4>
+                    <ul>
+                        <li><strong>精准靶向</strong>：配体引导，选择性杀伤肿瘤细胞，减少对正常组织损伤</li>
+                        <li><strong>全身治疗</strong>：可同时治疗原发灶和转移灶，适合晚期肿瘤</li>
+                        <li><strong>微创</strong>：静脉注射，无需手术，患者痛苦小</li>
+                        <li><strong>可重复</strong>：可多次给药，累积治疗效果</li>
+                        <li><strong>副作用小</strong>：相比传统化疗，对正常组织损伤更小，生活质量更高</li>
+                    </ul>
+
+                    <h4>🏥 临床应用实例</h4>
+                    <ul>
+                        <li><strong>Lu-177-DOTATATE (Lutathera®)</strong>：治疗神经内分泌肿瘤，FDA批准，显著延长生存期</li>
+                        <li><strong>Lu-177-PSMA-617 (Pluvicto®)</strong>：治疗转移性前列腺癌，FDA批准，改善预后</li>
+                        <li><strong>I-131 (碘-131)</strong>：治疗甲状腺癌和甲亢，应用最广泛的放射性药物</li>
+                        <li><strong>Ra-223 (Xofigo®)</strong>：治疗前列腺癌骨转移，缓解骨痛，延长生存</li>
+                        <li><strong>Y-90微球</strong>：肝癌局部治疗，通过肝动脉注射</li>
+                    </ul>
+
+                    <h4>🔬 研发挑战与未来方向</h4>
+                    <ul>
+                        <li>优化三个组分的匹配性，提高药物稳定性</li>
+                        <li>提高肿瘤/正常组织摄取比，扩大治疗窗口</li>
+                        <li>延长药物在肿瘤中的滞留时间，增强疗效</li>
+                        <li>降低肾脏和骨髓毒性，减少副作用</li>
+                        <li>开发新型靶点和配体，扩大适应症</li>
+                        <li>简化生产工艺，降低成本，提高可及性</li>
+                        <li>探索联合治疗方案（放射性药物+免疫治疗/化疗）</li>
+                    </ul>
+                `
+            },
+            human: {
+                title: '人体组织',
+                subtitle: 'Human Tissue & Biodistribution',
+                content: `
+                    <h4>🩺 体内分布过程</h4>
+                    <p>放射性药物通过静脉注射进入人体后，经历一系列复杂的生理过程，最终在靶器官或肿瘤组织中富集。理解药物的体内分布对于优化治疗方案和评估安全性至关重要。</p>
+
+                    <h4>🔄 分布阶段</h4>
+                    <ol>
+                        <li><strong>血液循环期（0-30分钟）</strong>：
+                            <ul>
+                                <li>药物快速分布到全身血液循环</li>
+                                <li>开始与靶组织受体结合</li>
+                                <li>部分药物被肝脏、肾脏摄取</li>
+                            </ul>
+                        </li>
+                        <li><strong>组织分布期（30分钟-数小时）</strong>：
+                            <ul>
+                                <li>药物逐渐从血液进入组织间隙</li>
+                                <li>靶组织摄取达到峰值</li>
+                                <li>非靶组织中的药物开始清除</li>
+                            </ul>
+                        </li>
+                        <li><strong>清除期（数小时-数天）</strong>：
+                            <ul>
+                                <li>未结合的药物通过肾脏排泄（尿液）</li>
+                                <li>部分通过肝脏代谢（粪便）</li>
+                                <li>靶组织中的药物缓慢释放</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>🎯 主要分布器官</h4>
+                    <ul>
+                        <li><strong>肿瘤组织</strong>：
+                            <ul>
+                                <li>目标靶点，药物高度富集</li>
+                                <li>摄取程度取决于受体表达水平和血供</li>
+                                <li>理想情况下，肿瘤摄取应为正常组织的10-100倍</li>
+                            </ul>
+                        </li>
+                        <li><strong>肾脏</strong>：
+                            <ul>
+                                <li>主要清除器官，小分子药物快速滤过</li>
+                                <li>可能出现一定程度的摄取和滞留</li>
+                                <li>需要监测肾功能，必要时使用肾保护剂</li>
+                            </ul>
+                        </li>
+                        <li><strong>肝脏</strong>：
+                            <ul>
+                                <li>大分子药物（如抗体）的主要代谢器官</li>
+                                <li>部分药物通过胆汁排泄</li>
+                            </ul>
+                        </li>
+                        <li><strong>骨髓</strong>：
+                            <ul>
+                                <li>辐射敏感器官，需要特别关注</li>
+                                <li>游离的放射性核素可能在骨髓中积累</li>
+                                <li>骨髓抑制是主要剂量限制性毒性</li>
+                            </ul>
+                        </li>
+                        <li><strong>唾液腺</strong>：
+                            <ul>
+                                <li>某些配体（如PSMA抑制剂）会在唾液腺富集</li>
+                                <li>可能导致口干等副作用</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>📊 影响因素</h4>
+                    <ul>
+                        <li><strong>分子大小</strong>：小分子清除快，大分子（抗体）循环时间长</li>
+                        <li><strong>亲水/疏水性</strong>：影响组织穿透和清除途径</li>
+                        <li><strong>受体表达</strong>：靶组织受体密度决定摄取量</li>
+                        <li><strong>血流灌注</strong>：血供丰富的组织摄取更快</li>
+                        <li><strong>肿瘤微环境</strong>：pH、缺氧等因素影响药物分布</li>
+                        <li><strong>患者因素</strong>：年龄、肾功能、肝功能等</li>
+                    </ul>
+
+                    <h4>🔬 监测方法</h4>
+                    <ul>
+                        <li><strong>SPECT/PET成像</strong>：实时可视化药物分布</li>
+                        <li><strong>血液采样</strong>：测定血药浓度-时间曲线</li>
+                        <li><strong>尿液分析</strong>：评估肾脏清除率</li>
+                        <li><strong>剂量学计算</strong>：估算各器官接受的辐射剂量</li>
+                    </ul>
+
+                    <h4>💡 临床意义</h4>
+                    <p>理想的放射性药物应该在肿瘤组织中快速、高度富集，同时在正常组织（特别是辐射敏感器官）中快速清除。通过优化药物设计和给药方案，可以最大化治疗窗口，提高疗效，降低毒性。</p>
+                `
+            },
+            tumor: {
+                title: '靶向肿瘤组织',
+                subtitle: 'Targeted Tumor Tissue',
+                content: `
+                    <h4>🎯 靶向识别机制</h4>
+                    <p>肿瘤组织是放射性药物的主要靶点。肿瘤细胞表面通常过表达某些特异性受体或抗原，这些分子标志物成为放射性药物配体识别和结合的靶点。</p>
+
+                    <h4>🔬 肿瘤特征</h4>
+                    <ul>
+                        <li><strong>受体过表达</strong>：
+                            <ul>
+                                <li>肿瘤细胞表面受体密度远高于正常细胞（可达10-1000倍）</li>
+                                <li>例如：前列腺癌细胞高表达PSMA，神经内分泌肿瘤高表达SSTR</li>
+                                <li>这种差异是实现选择性靶向的基础</li>
+                            </ul>
+                        </li>
+                        <li><strong>异常血管生成</strong>：
+                            <ul>
+                                <li>肿瘤快速生长需要大量血供</li>
+                                <li>新生血管结构异常，通透性增加</li>
+                                <li>有利于大分子药物（如抗体）的渗透和滞留（EPR效应）</li>
+                            </ul>
+                        </li>
+                        <li><strong>微环境特殊</strong>：
+                            <ul>
+                                <li>pH偏酸性（pH 6.5-7.0）</li>
+                                <li>缺氧区域存在</li>
+                                <li>间质压力高</li>
+                                <li>这些特征可用于设计环境响应型药物</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>💥 药物作用过程</h4>
+                    <ol>
+                        <li><strong>血管外渗</strong>：药物从肿瘤血管渗出到组织间隙</li>
+                        <li><strong>扩散</strong>：在肿瘤组织中扩散，寻找靶细胞</li>
+                        <li><strong>结合</strong>：配体与肿瘤细胞表面受体特异性结合</li>
+                        <li><strong>内化</strong>：受体-药物复合物被细胞吞噬进入细胞内</li>
+                        <li><strong>滞留</strong>：药物在肿瘤细胞内或表面长时间滞留</li>
+                        <li><strong>辐射</strong>：放射性核素持续释放辐射，杀伤肿瘤细胞</li>
+                    </ol>
+
+                    <h4>⚡ 辐射杀伤机制</h4>
+                    <ul>
+                        <li><strong>直接效应</strong>：
+                            <ul>
+                                <li>辐射直接击中DNA分子，造成单链或双链断裂</li>
+                                <li>α粒子能量高，造成密集的双链断裂，细胞难以修复</li>
+                                <li>β粒子射程较长（数毫米），可杀伤周围未结合药物的肿瘤细胞（旁观者效应）</li>
+                            </ul>
+                        </li>
+                        <li><strong>间接效应</strong>：
+                            <ul>
+                                <li>辐射电离水分子，产生自由基（·OH、·H等）</li>
+                                <li>自由基攻击DNA、蛋白质、脂质等生物大分子</li>
+                                <li>造成氧化损伤，触发细胞凋亡</li>
+                            </ul>
+                        </li>
+                        <li><strong>旁观者效应</strong>：
+                            <ul>
+                                <li>受辐射细胞释放信号分子，影响周围未受辐射的细胞</li>
+                                <li>扩大治疗效果，对异质性肿瘤有利</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>📊 疗效评估</h4>
+                    <ul>
+                        <li><strong>影像学评估</strong>：
+                            <ul>
+                                <li>CT/MRI：测量肿瘤大小变化</li>
+                                <li>PET：评估肿瘤代谢活性</li>
+                                <li>SPECT：监测药物摄取</li>
+                            </ul>
+                        </li>
+                        <li><strong>生化指标</strong>：
+                            <ul>
+                                <li>肿瘤标志物（PSA、CgA等）水平下降</li>
+                                <li>循环肿瘤细胞（CTC）减少</li>
+                            </ul>
+                        </li>
+                        <li><strong>临床症状</strong>：
+                            <ul>
+                                <li>疼痛缓解</li>
+                                <li>生活质量改善</li>
+                                <li>总生存期延长</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🛡️ 耐药机制</h4>
+                    <ul>
+                        <li><strong>受体下调</strong>：长期治疗后，肿瘤细胞可能降低受体表达</li>
+                        <li><strong>DNA修复增强</strong>：肿瘤细胞激活DNA修复机制</li>
+                        <li><strong>异质性</strong>：肿瘤内部不同细胞对治疗的敏感性不同</li>
+                        <li><strong>微环境保护</strong>：缺氧区域的细胞对辐射不敏感</li>
+                    </ul>
+
+                    <h4>💡 优化策略</h4>
+                    <ul>
+                        <li>联合治疗：放射性药物+化疗/免疫治疗</li>
+                        <li>分次给药：多次小剂量给药，累积辐射剂量</li>
+                        <li>增敏剂：使用辐射增敏剂提高疗效</li>
+                        <li>个体化治疗：根据受体表达水平调整剂量</li>
+                    </ul>
+                `
+            },
+            'radiation-energy': {
+                title: '辐射粒子/能量',
+                subtitle: 'Radiation Particles & Energy',
+                content: `
+                    <h4>⚡ 辐射释放机制</h4>
+                    <p>当放射性药物在肿瘤组织中富集后，放射性核素通过放射性衰变持续释放高能粒子和射线。这些辐射携带巨大的能量，能够直接或间接破坏肿瘤细胞的DNA和其他生物大分子，最终导致肿瘤细胞死亡。</p>
+
+                    <h4>🔬 主要辐射粒子类型</h4>
+                    <ul>
+                        <li><strong>α粒子（氦核）</strong>：
+                            <ul>
+                                <li><strong>组成</strong>：2个质子 + 2个中子</li>
+                                <li><strong>能量</strong>：5-9 MeV（极高）</li>
+                                <li><strong>射程</strong>：50-100 μm（极短，仅数个细胞直径）</li>
+                                <li><strong>LET（线性能量传递）</strong>：100 keV/μm（极高）</li>
+                                <li><strong>生物效应</strong>：造成密集的DNA双链断裂，细胞几乎无法修复</li>
+                                <li><strong>临床应用</strong>：Ac-225、Ra-223，用于难治性肿瘤</li>
+                                <li><strong>优势</strong>：高LET，对缺氧细胞和耐药细胞有效</li>
+                            </ul>
+                        </li>
+                        <li><strong>β粒子（电子）</strong>：
+                            <ul>
+                                <li><strong>能量</strong>：0.1-2.3 MeV</li>
+                                <li><strong>射程</strong>：0.5-12 mm（中等）</li>
+                                <li><strong>LET</strong>：0.2 keV/μm（低）</li>
+                                <li><strong>生物效应</strong>：造成DNA单链和双链断裂，部分可修复</li>
+                                <li><strong>临床应用</strong>：Lu-177、Y-90、I-131</li>
+                                <li><strong>优势</strong>：射程适中，可杀伤周围未结合药物的肿瘤细胞（交叉火力效应）</li>
+                            </ul>
+                        </li>
+                        <li><strong>γ射线（光子）</strong>：
+                            <ul>
+                                <li><strong>能量</strong>：0.1-2 MeV</li>
+                                <li><strong>射程</strong>：数厘米至数米（极长）</li>
+                                <li><strong>穿透力</strong>：极强</li>
+                                <li><strong>临床应用</strong>：主要用于诊断成像（Tc-99m、In-111）</li>
+                                <li><strong>优势</strong>：可体外探测，用于SPECT成像</li>
+                            </ul>
+                        </li>
+                        <li><strong>正电子（β+）</strong>：
+                            <ul>
+                                <li><strong>特性</strong>：与电子湮灭，产生两个180°相反的511 keV光子</li>
+                                <li><strong>临床应用</strong>：F-18、Ga-68，用于PET成像</li>
+                                <li><strong>优势</strong>：成像分辨率高，定量准确</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>⚡ 能量传递过程</h4>
+                    <ul>
+                        <li><strong>能量释放</strong>：
+                            <ul>
+                                <li>放射性核素衰变时释放MeV级别的能量</li>
+                                <li>α粒子：5-9 MeV，能量最高</li>
+                                <li>β粒子：0.1-2.3 MeV，能量中等</li>
+                                <li>γ射线：0.1-2 MeV，穿透力强</li>
+                            </ul>
+                        </li>
+                        <li><strong>能量沉积</strong>：
+                            <ul>
+                                <li>粒子在组织中运动，与原子、分子碰撞</li>
+                                <li>将能量传递给周围的生物分子</li>
+                                <li>α粒子射程短（50-100 μm），能量密集沉积</li>
+                                <li>β粒子射程中等（0.5-12 mm），能量分散沉积</li>
+                            </ul>
+                        </li>
+                        <li><strong>电离效应</strong>：
+                            <ul>
+                                <li>高能粒子击出原子中的电子，产生离子对</li>
+                                <li>直接电离：粒子直接击中DNA等关键分子</li>
+                                <li>间接电离：电离水分子产生自由基（·OH、·H等）</li>
+                                <li>自由基进一步攻击DNA、蛋白质、脂质</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🎯 线性能量传递（LET）</h4>
+                    <p>LET是衡量辐射生物效应的关键参数，表示单位路径长度上沉积的能量：</p>
+                    <ul>
+                        <li><strong>高LET辐射（α粒子）</strong>：
+                            <ul>
+                                <li>LET值：100 keV/μm</li>
+                                <li>在极短距离内释放大量能量</li>
+                                <li>造成密集的DNA双链断裂</li>
+                                <li>细胞几乎无法修复，杀伤力极强</li>
+                                <li>对缺氧细胞和耐药细胞有效</li>
+                            </ul>
+                        </li>
+                        <li><strong>低LET辐射（β粒子、γ射线）</strong>：
+                            <ul>
+                                <li>LET值：0.2 keV/μm</li>
+                                <li>能量分散沉积，射程较长</li>
+                                <li>造成分散的DNA损伤</li>
+                                <li>部分损伤可被细胞修复</li>
+                                <li>可产生"交叉火力"效应，杀伤周围细胞</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🌊 旁观者效应</h4>
+                    <p>受辐射的肿瘤细胞会释放信号分子（如细胞因子、活性氧等），影响周围未直接受辐射的细胞，扩大治疗效果。这对异质性肿瘤（部分细胞未结合药物）特别有利。</p>
+
+                    <h4>📊 辐射剂量学</h4>
+                    <ul>
+                        <li><strong>吸收剂量（Gy）</strong>：组织吸收的辐射能量，1 Gy = 1 J/kg</li>
+                        <li><strong>等效剂量（Sv）</strong>：考虑辐射类型的生物效应，Sv = Gy × 辐射权重因子</li>
+                        <li><strong>剂量率</strong>：单位时间内的剂量，影响生物效应和修复能力</li>
+                        <li><strong>累积剂量</strong>：多次给药的总剂量，决定最终疗效</li>
+                    </ul>
+
+                    <h4>🎯 治疗优化</h4>
+                    <ul>
+                        <li><strong>核素选择</strong>：根据肿瘤类型、大小、位置选择合适的辐射类型</li>
+                        <li><strong>剂量计算</strong>：个体化剂量学，基于患者体重、肾功能、肿瘤负荷</li>
+                        <li><strong>分次给药</strong>：多次小剂量给药，累积辐射效果，减少急性毒性</li>
+                        <li><strong>联合治疗</strong>：与化疗、免疫治疗联合，协同增效</li>
+                    </ul>
+
+                    <h4>💡 临床意义</h4>
+                    <p>辐射粒子和能量是放射性药物发挥治疗作用的核心。通过精确控制辐射类型、能量和剂量，可以在肿瘤组织中实现高效的能量沉积，最大化杀伤效果，同时保护正常组织。</p>
+                `
+            },
+            'cell-death': {
+                title: '杀死细胞组织',
+                subtitle: 'Cell Death & Tissue Destruction',
+                content: `
+                    <h4>💀 细胞死亡机制</h4>
+                    <p>辐射能量沉积在肿瘤细胞后，通过多种机制导致细胞死亡。不同的死亡途径具有不同的时间进程和生物学特征，最终目标都是消除肿瘤细胞，控制肿瘤生长。</p>
+
+                    <h4>🧬 DNA损伤与修复</h4>
+                    <ul>
+                        <li><strong>直接DNA损伤</strong>：
+                            <ul>
+                                <li>辐射粒子直接击中DNA分子</li>
+                                <li>造成碱基损伤、脱氧核糖损伤</li>
+                                <li>DNA单链断裂（SSB）：可被细胞修复</li>
+                                <li>DNA双链断裂（DSB）：最致命，难以修复</li>
+                                <li>α粒子造成密集的DSB，细胞几乎无法修复</li>
+                            </ul>
+                        </li>
+                        <li><strong>间接DNA损伤</strong>：
+                            <ul>
+                                <li>辐射电离水分子（占细胞70%）</li>
+                                <li>产生自由基：H₂O → ·OH + ·H + e⁻aq</li>
+                                <li>自由基攻击DNA、蛋白质、脂质</li>
+                                <li>间接效应占总DNA损伤的60-70%</li>
+                                <li>抗氧化剂可部分保护正常细胞</li>
+                            </ul>
+                        </li>
+                        <li><strong>修复失败</strong>：
+                            <ul>
+                                <li>肿瘤细胞DNA修复能力通常较弱</li>
+                                <li>高LET辐射（α粒子）造成的损伤难以修复</li>
+                                <li>修复错误导致染色体畸变</li>
+                                <li>累积损伤超过修复能力阈值</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>☠️ 主要细胞死亡途径</h4>
+                    <ul>
+                        <li><strong>1. 有丝分裂死亡（Mitotic Catastrophe）</strong>：
+                            <ul>
+                                <li>DNA损伤导致染色体异常（断裂、易位、缺失）</li>
+                                <li>细胞在分裂时无法正确分配染色体</li>
+                                <li>形成多核细胞或微核</li>
+                                <li>细胞在1-2次分裂后死亡</li>
+                                <li>对快速增殖的肿瘤细胞特别有效</li>
+                                <li>时间：辐射后数天至数周</li>
+                            </ul>
+                        </li>
+                        <li><strong>2. 凋亡（Apoptosis，程序性细胞死亡）</strong>：
+                            <ul>
+                                <li>DNA损伤激活p53等肿瘤抑制基因</li>
+                                <li>启动凋亡信号通路（Caspase级联反应）</li>
+                                <li>细胞膜起泡，染色质凝聚</li>
+                                <li>细胞有序解体成凋亡小体</li>
+                                <li>被巨噬细胞吞噬，不引起炎症</li>
+                                <li>时间：辐射后数小时至数天</li>
+                            </ul>
+                        </li>
+                        <li><strong>3. 坏死（Necrosis）</strong>：
+                            <ul>
+                                <li>高剂量辐射导致细胞膜完整性丧失</li>
+                                <li>细胞肿胀，膜破裂</li>
+                                <li>细胞内容物释放到组织间隙</li>
+                                <li>引起炎症反应和免疫应答</li>
+                                <li>可能激活抗肿瘤免疫</li>
+                                <li>时间：辐射后数小时</li>
+                            </ul>
+                        </li>
+                        <li><strong>4. 自噬（Autophagy）</strong>：
+                            <ul>
+                                <li>细胞通过自噬降解受损的细胞器</li>
+                                <li>低剂量时可能促进细胞存活</li>
+                                <li>高剂量时导致过度自噬和细胞死亡</li>
+                                <li>与凋亡相互作用</li>
+                            </ul>
+                        </li>
+                        <li><strong>5. 衰老（Senescence）</strong>：
+                            <ul>
+                                <li>细胞永久停止分裂，但不死亡</li>
+                                <li>保持代谢活性</li>
+                                <li>分泌促炎因子（SASP），影响周围细胞</li>
+                                <li>可能促进或抑制肿瘤生长</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🔥 组织破坏过程</h4>
+                    <ol>
+                        <li><strong>初期（0-24小时）</strong>：
+                            <ul>
+                                <li>辐射能量沉积，DNA损伤累积</li>
+                                <li>细胞应激反应，修复机制启动</li>
+                                <li>部分细胞开始凋亡</li>
+                            </ul>
+                        </li>
+                        <li><strong>早期（1-7天）</strong>：
+                            <ul>
+                                <li>大量细胞凋亡和坏死</li>
+                                <li>炎症细胞浸润</li>
+                                <li>肿瘤体积开始缩小</li>
+                                <li>坏死组织被清除</li>
+                            </ul>
+                        </li>
+                        <li><strong>中期（1-4周）</strong>：
+                            <ul>
+                                <li>有丝分裂死亡显现</li>
+                                <li>肿瘤细胞增殖受抑制</li>
+                                <li>血管损伤，肿瘤缺血</li>
+                                <li>纤维化开始</li>
+                            </ul>
+                        </li>
+                        <li><strong>晚期（数月）</strong>：
+                            <ul>
+                                <li>肿瘤组织被纤维组织替代</li>
+                                <li>形成瘢痕</li>
+                                <li>残留肿瘤细胞可能进入衰老状态</li>
+                                <li>影像学显示肿瘤缩小或消失</li>
+                            </ul>
+                        </li>
+                    </ol>
+
+                    <h4>🎯 影响因素</h4>
+                    <ul>
+                        <li><strong>辐射剂量</strong>：剂量越高，细胞死亡越多</li>
+                        <li><strong>辐射类型</strong>：α粒子杀伤力最强，β粒子次之</li>
+                        <li><strong>细胞周期</strong>：M期和G2期细胞最敏感</li>
+                        <li><strong>氧含量</strong>：有氧细胞对辐射更敏感（氧增强效应）</li>
+                        <li><strong>肿瘤类型</strong>：不同肿瘤对辐射敏感性不同</li>
+                        <li><strong>基因状态</strong>：p53突变的肿瘤可能更耐受</li>
+                    </ul>
+
+                    <h4>📊 疗效评估</h4>
+                    <ul>
+                        <li><strong>影像学</strong>：
+                            <ul>
+                                <li>CT/MRI：肿瘤体积缩小</li>
+                                <li>PET：代谢活性降低</li>
+                                <li>SPECT：药物摄取减少</li>
+                            </ul>
+                        </li>
+                        <li><strong>生化指标</strong>：
+                            <ul>
+                                <li>肿瘤标志物（PSA、CgA等）下降</li>
+                                <li>循环肿瘤DNA（ctDNA）减少</li>
+                                <li>炎症标志物变化</li>
+                            </ul>
+                        </li>
+                        <li><strong>病理学</strong>：
+                            <ul>
+                                <li>活检显示肿瘤细胞坏死</li>
+                                <li>纤维化和瘢痕形成</li>
+                                <li>残留肿瘤细胞减少</li>
+                            </ul>
+                        </li>
+                        <li><strong>临床症状</strong>：
+                            <ul>
+                                <li>疼痛缓解</li>
+                                <li>肿瘤相关症状改善</li>
+                                <li>生活质量提高</li>
+                                <li>生存期延长</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4>🛡️ 正常组织保护</h4>
+                    <ul>
+                        <li><strong>选择性靶向</strong>：配体引导，药物主要在肿瘤富集</li>
+                        <li><strong>快速清除</strong>：未结合药物快速从正常组织清除</li>
+                        <li><strong>分次给药</strong>：允许正常组织修复</li>
+                        <li><strong>器官保护</strong>：使用氨基酸保护肾脏，监测骨髓功能</li>
+                        <li><strong>剂量优化</strong>：个体化剂量，避免过量</li>
+                    </ul>
+
+                    <h4>💡 临床意义</h4>
+                    <p>理解细胞死亡机制对于优化放射性药物治疗至关重要。通过选择合适的辐射类型、优化剂量和给药方案，可以最大化肿瘤细胞杀伤，同时最小化对正常组织的损伤。多种细胞死亡途径的协同作用确保了治疗的有效性，即使部分肿瘤细胞对某一途径耐受，也可通过其他途径被消除。</p>
+                `
+            }
+        };
+
+        // 打开全屏查看
+        function openModal() {
+            document.getElementById('imageModal').classList.add('show');
+        }
+
+        // 关闭全屏查看
+        function closeModal(event) {
+            // 如果点击的是iframe内部，不关闭模态框
+            if (event && event.target.tagName === 'IFRAME') {
+                return;
+            }
+            document.getElementById('imageModal').classList.remove('show');
+        }
+
+        // 打开高清查看（新标签页）
+        function openHDView() {
+            window.open('基础知识_html/核医药原理图/index.html', '_blank');
+        }
+
+        // 获取DOM元素
+        const infoPanel = document.getElementById('infoPanel');
+        const overlay = document.getElementById('overlay');
+        const closePanel = document.getElementById('closePanel');
+        const panelTitle = document.getElementById('panelTitle');
+        const panelSubtitle = document.getElementById('panelSubtitle');
+        const panelContent = document.getElementById('panelContent');
+        const hotspots = document.querySelectorAll('.hotspot');
+
+        // 显示信息面板
+        function showInfoPanel(elementKey) {
+            const info = elementInfo[elementKey];
+            if (!info) return;
+
+            // 更新面板内容
+            panelTitle.textContent = info.title;
+            panelSubtitle.textContent = info.subtitle;
+            panelContent.innerHTML = info.content;
+
+            // 显示面板和遮罩
+            infoPanel.classList.add('show');
+            overlay.classList.add('show');
+
+            // 移除所有热区的激活状态
+            hotspots.forEach(h => h.classList.remove('active'));
+
+            // 激活当前热区
+            const currentHotspot = document.querySelector(`[data-element="${elementKey}"]`);
+            if (currentHotspot) {
+                currentHotspot.classList.add('active');
+            }
+        }
+
+        // 关闭信息面板
+        function closeInfoPanel() {
+            infoPanel.classList.remove('show');
+            overlay.classList.remove('show');
+
+            // 移除所有热区的激活状态
+            hotspots.forEach(h => h.classList.remove('active'));
+        }
+
+        // 为每个热区添加点击事件
+        hotspots.forEach(hotspot => {
+            hotspot.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const elementKey = this.getAttribute('data-element');
+                showInfoPanel(elementKey);
+            });
+        });
+
+        // 关闭按钮事件
+        closePanel.addEventListener('click', closeInfoPanel);
+
+        // 点击遮罩关闭
+        overlay.addEventListener('click', closeInfoPanel);
+
+        // ESC键关闭
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+                closeInfoPanel();
+            }
+        });
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', function() {
+            console.log('放射性药物原理图交互系统已加载');
+            console.log(`共有 ${hotspots.length} 个可交互热区`);
+        });
+    </script>
+</body>
+</html>
+

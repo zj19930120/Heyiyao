@@ -1,0 +1,4068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>核医疗产业综合信息平台</title>
+    <style>
+        /* ==================== CSS 变量系统 ==================== */
+        :root {
+            /* 主色调 */
+            --primary-color: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #4285f4;
+            --primary-lighter: #e8f0fe;
+
+            /* 辅助色 */
+            --secondary-color: #667eea;
+            --secondary-dark: #5568d3;
+            --accent-purple: #764ba2;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+
+            /* 中性色 */
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+
+            /* 语义色 */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --info-color: #3b82f6;
+
+            /* 阴影 */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+            /* 圆角 */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 24px;
+            --radius-full: 9999px;
+
+            /* 间距 */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+
+            /* 过渡 */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            background: var(--gray-50);
+            min-height: 100vh;
+            color: var(--gray-900);
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* ==================== 导航栏 ==================== */
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0;
+            border-bottom: 1px solid var(--gray-200);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: -0.5px;
+            transition: var(--transition-base);
+            cursor: pointer;
+        }
+
+        .logo::before {
+            content: "⚛️";
+            font-size: 32px;
+            filter: drop-shadow(0 2px 4px rgba(26, 115, 232, 0.3));
+        }
+
+        .logo:hover {
+            transform: translateY(-1px);
+            color: var(--primary-dark);
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 4px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: var(--gray-600);
+            font-weight: 500;
+            font-size: 14px;
+            transition: var(--transition-base);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-menu a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color);
+            transform: translateX(-50%);
+            transition: var(--transition-base);
+        }
+
+        .nav-menu a:hover {
+            background: var(--gray-100);
+            color: var(--primary-color);
+        }
+
+        .nav-menu a:hover::before {
+            width: 60%;
+        }
+
+        .nav-menu a.active {
+            color: var(--primary-color);
+            background: var(--primary-lighter);
+            font-weight: 600;
+        }
+
+        .nav-menu a.active::before {
+            width: 60%;
+        }
+
+        /* ==================== 主容器 ==================== */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ==================== Hero 欢迎区域 ==================== */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 50%, var(--secondary-color) 100%);
+            border-radius: var(--radius-xl);
+            padding: 60px 40px 70px 40px;
+            margin: 28px 0;
+            box-shadow: var(--shadow-xl), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+            animation: float 15s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 30px) scale(1.1); }
+        }
+
+        .hero-title {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 16px;
+            letter-spacing: -1.5px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-subtitle {
+            font-size: 17px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 32px;
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+            line-height: 1.6;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 32px;
+            margin-bottom: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            text-align: center;
+            transition: var(--transition-base);
+        }
+
+        .stat-item:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        /* ==================== 内容区域 ==================== */
+        .content-section {
+            background: #ffffff;
+            border-radius: var(--radius-xl);
+            padding: 36px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: var(--transition-base);
+        }
+
+        .content-section:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--gray-100);
+            position: relative;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .section-icon {
+            font-size: 32px;
+            margin-right: 12px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .section-title {
+            font-size: 26px;
+            color: var(--gray-900);
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* ==================== 资料卡片 ==================== */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .resource-card {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            cursor: pointer;
+            transition: var(--transition-base);
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .resource-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary-color), var(--secondary-color));
+            transform: scaleY(0);
+            transition: var(--transition-base);
+        }
+
+        .resource-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(135deg, rgba(26, 115, 232, 0.03), rgba(102, 126, 234, 0.03));
+            opacity: 0;
+            transition: var(--transition-base);
+            pointer-events: none; /* 不阻止鼠标事件 */
+        }
+
+        .resource-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+        }
+
+        .resource-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .resource-card:hover::after {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 42px;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            line-height: 1.4;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: var(--primary-lighter);
+            color: var(--primary-color);
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 14px;
+            position: relative;
+            z-index: 1;
+            transition: var(--transition-base);
+        }
+
+        .resource-card:hover .card-tag {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* ==================== 按钮系统 ==================== */
+        .quick-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+            margin-top: 28px;
+        }
+
+        .action-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-base);
+            letter-spacing: 0.3px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .action-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--primary-color);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-secondary:hover {
+            background: #ffffff;
+            border-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-tertiary {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-color);
+        }
+
+        .btn-tertiary:hover {
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* PDF查看器模态框 */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .pdf-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+        .pdf-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 40px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .pdf-close:hover {
+            background: #f5576c;
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* PDF查看器返回主页按钮 */
+        .pdf-back-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pdf-back-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .pdf-back-home .arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .pdf-back-home:hover .arrow {
+            transform: translateX(-3px);
+        }
+
+        /* PDF侧边栏导航 */
+        .pdf-sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .pdf-sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pdf-sidebar-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pdf-nav-group {
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pdf-nav-group-title {
+            color: #ecf0f1;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0 0 10px 10px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pdf-nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ecf0f1;
+            font-size: 13px;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pdf-nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #3498db;
+            transform: translateX(5px);
+        }
+
+        .pdf-nav-item.active {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-left-color: #ecf0f1;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.4);
+        }
+
+        .pdf-nav-item-icon {
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .pdf-sidebar-toggle {
+            position: absolute;
+            left: 290px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 60px;
+            background: #2c3e50;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            color: white;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            transition: all 0.3s ease;
+        }
+
+        .pdf-sidebar-toggle:hover {
+            background: #34495e;
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding-left: 280px;
+            box-sizing: border-box;
+        }
+
+        /* PDF工具栏 */
+        .pdf-toolbar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .pdf-toolbar-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .pdf-toolbar-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+
+        .pdf-toolbar-btn.download {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .pdf-toolbar-btn.fullscreen {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .pdf-toolbar-btn.print {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .pdf-title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            max-width: 60%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        /* PDF加载动画 */
+        .pdf-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+        }
+
+        .pdf-loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(102, 126, 234, 0.2);
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        .pdf-loading-text {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* HTML查看器模态框 */
+        .html-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .html-modal-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+
+        .html-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .html-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: rotate(90deg);
+        }
+
+        /* HTML查看器侧边栏导航 */
+        .html-sidebar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            transform: translateX(-100%);
+        }
+
+        .html-sidebar.show {
+            transform: translateX(0);
+        }
+
+        .html-sidebar-header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .html-sidebar-title {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .html-nav-group {
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .html-nav-group-title {
+            color: #ecf0f1;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 0 0 10px 10px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .html-nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #ecf0f1;
+            font-size: 13px;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .html-nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #4facfe;
+            transform: translateX(5px);
+        }
+
+        .html-nav-item.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-left-color: #ecf0f1;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.4);
+        }
+
+        .html-nav-item-icon {
+            font-size: 16px;
+            min-width: 20px;
+        }
+
+        .html-sidebar-toggle {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 80px;
+            background: rgba(30, 60, 114, 0.9);
+            border: none;
+            border-radius: 0 8px 8px 0;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 6;
+            transition: all 0.3s ease;
+            font-size: 20px;
+        }
+
+        .html-sidebar.show + .html-sidebar-toggle {
+            left: 280px;
+        }
+
+        .html-sidebar-toggle:hover {
+            background: rgba(42, 82, 152, 0.95);
+            width: 45px;
+        }
+
+        .html-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            padding-left: 280px;
+            box-sizing: border-box;
+            transition: padding-left 0.3s ease;
+        }
+
+        .html-sidebar:not(.show) ~ .html-frame {
+            padding-left: 0;
+        }
+
+        /* HTML工具栏 */
+        .html-toolbar {
+            display: none !important;
+        }
+
+
+
+        .html-title {
+            display: none;
+        }
+
+        /* HTML加载动画 */
+        .html-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+        }
+
+        .html-loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(79, 172, 254, 0.2);
+            border-top-color: #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        .html-loading-text {
+            display: none;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: #ffffff;
+            padding: 24px;
+            text-align: center;
+            margin-top: 24px;
+            border-radius: 12px;
+            border: 1px solid #e8eaed;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .footer-text {
+            color: #5f6368;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* ==================== 搜索框 ==================== */
+        .search-container {
+            max-width: 650px;
+            margin: 28px auto 80px auto;
+            position: relative;
+            z-index: 100;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 16px 50px 16px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: var(--radius-full);
+            font-size: 15px;
+            transition: var(--transition-base);
+            background: rgba(255, 255, 255, 0.98);
+            color: var(--gray-900);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .search-box::placeholder {
+            color: var(--gray-500);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 0 0 4px rgba(255, 255, 255, 0.2);
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 22px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--gray-500);
+            pointer-events: none;
+            transition: var(--transition-base);
+        }
+
+        .search-box:focus ~ .search-icon {
+            color: var(--primary-color);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 54px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            color: var(--gray-500);
+            cursor: pointer;
+            display: none;
+            background: none;
+            border: none;
+            padding: 6px;
+            border-radius: 50%;
+            transition: var(--transition-base);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-clear:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: var(--gray-900);
+        }
+
+        .search-clear.visible {
+            display: flex;
+        }
+
+        /* ==================== 核素搜索提示框 ==================== */
+        .nuclide-hint {
+            position: absolute;
+            top: calc(100% + 16px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-xl);
+            padding: 24px 28px;
+            box-shadow: var(--shadow-2xl);
+            display: none;
+            z-index: 1000;
+            animation: slideDown 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: auto;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .nuclide-hint.visible {
+            display: block;
+        }
+
+        .nuclide-hint-title {
+            font-size: 13px;
+            color: var(--gray-600);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nuclide-hint-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nuclide-hint-icon {
+            font-size: 40px;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .nuclide-hint-info {
+            flex: 1;
+        }
+
+        .nuclide-hint-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 6px;
+        }
+
+        .nuclide-hint-desc {
+            font-size: 14px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .nuclide-hint-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: var(--radius-lg);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-base);
+            white-space: nowrap;
+            position: relative;
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .nuclide-hint-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+            box-shadow: 0 6px 16px rgba(26, 115, 232, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .nuclide-hint-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 标签过滤器 */
+        .filter-tags {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 32px;
+        }
+
+        .filter-tag {
+            padding: 8px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 16px;
+            background: #ffffff;
+            color: #5f6368;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .filter-tag:hover {
+            background: #f1f3f4;
+            border-color: #1a73e8;
+            color: #1a73e8;
+        }
+
+        .filter-tag.active {
+            background: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        /* 下载按钮 */
+        .download-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s;
+            opacity: 0;
+        }
+
+        .resource-card:hover .download-btn {
+            opacity: 1;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* 查看按钮 */
+        .view-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .view-btn-pdf {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .view-btn-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+
+        .view-btn-html {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.3);
+        }
+
+        .view-btn-html:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.5);
+        }
+
+        /* ==================== 返回顶部按钮 ==================== */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-purple) 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: var(--shadow-xl);
+            transition: var(--transition-base);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-6px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+        }
+
+        .back-to-top:active {
+            transform: translateY(-2px) scale(1);
+        }
+
+        /* 提示标签 */
+        .info-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 提示工具 */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* 时间线 */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .timeline-text {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 双向时间线样式 */
+        .dual-timeline-container {
+            margin-top: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+        }
+
+        .dual-timeline-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .dual-timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .timeline-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .timeline-row.bottom {
+            flex-direction: row-reverse;
+            margin-bottom: 20px;
+        }
+
+        .timeline-node {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            max-width: 140px;
+        }
+
+        .timeline-year {
+            background: #8B6914;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(139, 105, 20, 0.3);
+            white-space: nowrap;
+            z-index: 2;
+        }
+
+        .timeline-event {
+            background: #f0f0f0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timeline-arrow-line {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #8B6914;
+            z-index: 1;
+        }
+
+        .timeline-arrow-line::after {
+            content: '→';
+            position: absolute;
+            right: -10px;
+            top: -12px;
+            font-size: 24px;
+            color: #8B6914;
+        }
+
+        .timeline-row.bottom .timeline-arrow-line::after {
+            content: '←';
+            right: auto;
+            left: -10px;
+        }
+
+        .timeline-curve {
+            position: absolute;
+            right: -30px;
+            top: 20px;
+            width: 60px;
+            height: 80px;
+            border: 3px solid #8B6914;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 50px 0;
+        }
+
+        .timeline-source {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* ==================== AI问答样式 ==================== */
+        .ai-qa-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .ai-qa-intro {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-purple) 100%);
+            color: white;
+            padding: 20px 28px;
+            border-radius: var(--radius-xl);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-qa-intro::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .ai-qa-intro p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid var(--gray-200);
+        }
+
+        .chat-messages {
+            height: 450px;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f8f9fa;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 16px;
+            animation: messageSlideIn 0.3s ease;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-message.user .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message-content {
+            max-width: 70%;
+            margin: 0 15px;
+        }
+
+        .message-text {
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user .message-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            padding: 0 5px;
+        }
+
+        .message-loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: loadingDot 1.4s infinite;
+        }
+
+        .loading-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes loadingDot {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input-container {
+            background: var(--gray-50);
+            border-top: 1px solid var(--gray-200);
+            padding: 24px;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 14px 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-2xl);
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            transition: var(--transition-base);
+            font-family: inherit;
+            max-height: 120px;
+            background: white;
+        }
+
+        .chat-input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-send-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-purple) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--radius-2xl);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-base);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .chat-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .chat-send-btn:active {
+            transform: translateY(0);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .chat-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: space-between;
+        }
+
+        .chat-action-btn {
+            padding: 8px 16px;
+            background: #f1f3f4;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            color: #5f6368;
+        }
+
+        .chat-action-btn:hover {
+            background: #e8eaed;
+        }
+
+        .api-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f1f3f4;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ea4335;
+        }
+
+        .api-status.connected .status-dot {
+            background: #34a853;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .quick-questions {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--gray-200);
+        }
+
+        .quick-questions-title {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 18px;
+        }
+
+        .quick-questions-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 14px;
+        }
+
+        .quick-question-btn {
+            padding: 14px 20px;
+            background: var(--gray-50);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            font-size: 14px;
+            text-align: left;
+            transition: var(--transition-base);
+            color: var(--gray-700);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-question-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--accent-purple) 100%);
+            opacity: 0;
+            transition: var(--transition-base);
+        }
+
+        .quick-question-btn:hover {
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-question-btn:hover::before {
+            opacity: 1;
+        }
+
+        .quick-question-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ==================== 辅助工具类 ==================== */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 1024px) {
+            :root {
+                --spacing-xl: 24px;
+                --spacing-2xl: 36px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .hero-stats {
+                gap: 40px;
+            }
+
+            .timeline-node {
+                max-width: 110px;
+            }
+
+            .timeline-year {
+                font-size: 14px;
+                padding: 6px 15px;
+            }
+
+            .timeline-event {
+                font-size: 11px;
+                padding: 10px 12px;
+                min-height: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 24px 50px 24px;
+                margin: 20px 0;
+            }
+
+            .hero-title {
+                font-size: 32px;
+                letter-spacing: -1px;
+            }
+
+            .hero-subtitle {
+                font-size: 15px;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 24px;
+            }
+
+            .stat-number {
+                font-size: 40px;
+            }
+
+            .search-container {
+                margin: 24px auto 60px auto;
+            }
+
+            .search-box {
+                padding: 14px 48px 14px 20px;
+                font-size: 14px;
+            }
+
+            .quick-actions {
+                gap: 10px;
+            }
+
+            .action-btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .content-section {
+                padding: 24px;
+                margin-bottom: 20px;
+            }
+
+            .section-title {
+                font-size: 22px;
+            }
+
+            .section-icon {
+                font-size: 28px;
+            }
+
+            .resources-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .resource-card {
+                padding: 20px;
+            }
+
+            .nav-container {
+                padding: 12px 20px;
+            }
+
+            .nav-menu {
+                flex-wrap: wrap;
+                gap: 6px;
+                justify-content: center;
+            }
+
+            .nav-menu a {
+                padding: 8px 14px;
+                font-size: 13px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .logo::before {
+                font-size: 26px;
+            }
+
+            .back-to-top {
+                bottom: 24px;
+                right: 24px;
+                width: 50px;
+                height: 50px;
+            }
+
+            .dual-timeline-container {
+                padding: 30px 15px;
+            }
+
+            .dual-timeline-title {
+                font-size: 20px;
+                margin-bottom: 30px;
+            }
+
+            .timeline-row {
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-bottom: 40px;
+            }
+
+            .timeline-node {
+                max-width: 45%;
+            }
+
+            .timeline-arrow-line {
+                display: none;
+            }
+
+            .timeline-curve {
+                display: none;
+            }
+
+            .chat-messages {
+                height: 400px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .quick-questions-list {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-input-wrapper {
+                flex-direction: column;
+            }
+
+            .chat-send-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .ai-qa-intro {
+                padding: 18px 20px;
+            }
+
+            .quick-questions {
+                padding: 20px;
+            }
+        }
+
+            /* PDF查看器移动端适配 */
+            .pdf-back-home {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .pdf-close {
+                top: 10px;
+                right: 10px;
+                width: 45px;
+                height: 45px;
+                font-size: 30px;
+            }
+
+            .pdf-title {
+                top: 70px;
+                font-size: 14px;
+                padding: 8px 15px;
+                max-width: 80%;
+            }
+
+            .pdf-toolbar {
+                bottom: 15px;
+                padding: 8px 12px;
+                gap: 8px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .pdf-toolbar-btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                gap: 4px;
+            }
+
+            .pdf-toolbar-btn span:last-child {
+                display: none;
+            }
+
+            /* 移动端侧边栏 */
+            .pdf-sidebar {
+                transform: translateX(-100%);
+            }
+
+            .pdf-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .pdf-sidebar-toggle {
+                display: flex;
+                left: 0;
+            }
+
+            .pdf-sidebar.show + .pdf-sidebar-toggle {
+                left: 280px;
+            }
+
+            .pdf-frame {
+                padding-left: 0;
+            }
+
+            /* HTML查看器移动端适配 */
+            .html-toolbar-btn span:last-child {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">⚛️ 核医疗产业平台</div>
+            <ul class="nav-menu">
+                <li><a href="#home">首页</a></li>
+                <li><a href="#ai-qa">AI问答</a></li>
+                <li><a href="#periodic-table">元素周期表</a></li>
+                <li><a href="#industry">产业图谱</a></li>
+                <li><a href="#knowledge">基础知识</a></li>
+                <li><a href="dashboard.html" target="_blank" onclick="console.log('导航栏-数据大屏链接被点击'); return true;" style="background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600;">📊 数据大屏</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 欢迎区域 -->
+        <section id="home" class="hero-section">
+            <h1 class="hero-title">核医疗产业综合信息平台</h1>
+            <p class="hero-subtitle">探索核医学元素周期表 · 了解产业发展前景 · 掌握核心技术知识</p>
+
+            <!-- 搜索框 -->
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchInput" placeholder="🔍 搜索资料、核素或关键词（如：Lu-177、镥177、碘131）..." oninput="searchResources(); toggleClearButton()">
+                <button class="search-clear" id="searchClear" onclick="clearSearch()">×</button>
+                <span class="search-icon">🔍</span>
+
+                <!-- 核素搜索提示框 -->
+                <div class="nuclide-hint" id="nuclideHint">
+                    <div class="nuclide-hint-title">💡 找到核素信息</div>
+                    <div class="nuclide-hint-content">
+                        <div class="nuclide-hint-icon">⚛️</div>
+                        <div class="nuclide-hint-info">
+                            <div class="nuclide-hint-name" id="nuclideName"></div>
+                            <div class="nuclide-hint-desc">点击查看该核素在元素周期表中的详细信息</div>
+                        </div>
+                        <button class="nuclide-hint-btn" onclick="openNuclideInTable()">查看详情 →</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="elementCount">118</div>
+                    <div class="stat-label">化学元素</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="isotopeCount">30+</div>
+                    <div class="stat-label">医用同位素</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="resourceCount">5</div>
+                    <div class="stat-label">专业资料</div>
+                </div>
+            </div>
+
+            <div class="quick-actions" style="margin-top: 40px;">
+                <button class="action-btn btn-primary" onclick="openPeriodicTable()">🔬 查看元素周期表</button>
+                <button class="action-btn btn-secondary" onclick="scrollToSection('industry')">📊 产业图谱资料</button>
+                <button class="action-btn btn-tertiary" onclick="scrollToSection('knowledge')">📚 基础知识学习</button>
+                <button class="action-btn" onclick="openDashboard()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); font-weight: 600;">
+                    📊 产业数据大屏
+                </button>
+            </div>
+
+        </section>
+
+        <!-- 数据大屏展示区域 -->
+        <section class="content-section" style="margin-bottom: 40px;">
+            <div class="section-header">
+                <span class="section-icon">📊</span>
+                <h2 class="section-title">产业数据大屏</h2>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <!-- 背景装饰 -->
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(40px);"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; filter: blur(30px);"></div>
+
+                <div style="position: relative; z-index: 1;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h3 style="color: white; font-size: 32px; margin-bottom: 15px; font-weight: 700;">
+                            🌟 核医药产业全景数据大屏
+                        </h3>
+                        <p style="color: rgba(255, 255, 255, 0.9); font-size: 16px; line-height: 1.8;">
+                            实时展示四川省核医疗产业布局、泸州产业园核心数据等关键信息<br>
+                            动态可视化呈现，支持交互式地图查看
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <div style="font-size: 36px; color: #4ade80; font-weight: bold; margin-bottom: 8px;">4</div>
+                            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">四川产业布局城市</div>
+                            <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-top: 4px;">（一链四极）</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <div style="font-size: 36px; color: #3b82f6; font-weight: bold; margin-bottom: 8px;">8500</div>
+                            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">泸州产业园规模</div>
+                            <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-top: 4px;">（亩）</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <div style="font-size: 36px; color: #f093fb; font-weight: bold; margin-bottom: 8px;">1.6</div>
+                            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">年核诊疗量</div>
+                            <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-top: 4px;">（万人次）</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2);">
+                            <div style="font-size: 36px; color: #fbbf24; font-weight: bold; margin-bottom: 8px;">10</div>
+                            <div style="color: rgba(255, 255, 255, 0.9); font-size: 14px;">泸州核医疗基金</div>
+                            <div style="color: rgba(255, 255, 255, 0.7); font-size: 12px; margin-top: 4px;">（亿元）</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button onclick="openDashboard()" style="background: white; color: #667eea; border: none; padding: 16px 48px; border-radius: 12px; font-size: 18px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 10px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 25px rgba(0, 0, 0, 0.3)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(0, 0, 0, 0.2)'">
+                            <span style="font-size: 24px;">📊</span>
+                            <span>进入数据大屏</span>
+                            <span style="font-size: 20px;">→</span>
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 25px; text-align: center;">
+                        <div style="display: inline-flex; gap: 20px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: rgba(255, 255, 255, 0.8);">
+                            <span>✨ 粒子动画背景</span>
+                            <span>🗺️ 交互式地图</span>
+                            <span>📈 实时数据流</span>
+                            <span>💫 动态可视化</span>
+                            <span>🎯 全屏展示</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI问答版块 -->
+        <section id="ai-qa" class="content-section">
+            <div class="section-header">
+                <span class="section-icon">🤖</span>
+                <h2 class="section-title">AI智能问答</h2>
+            </div>
+
+            <div class="ai-qa-container">
+                <div class="ai-qa-intro">
+                    <p>💡 欢迎使用核医疗产业AI助手！我可以回答关于核医学、医用同位素、核药研发等相关问题。</p>
+                </div>
+
+                <!-- 聊天界面 -->
+                <div class="chat-container">
+                    <!-- 聊天消息区域 -->
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message assistant">
+                            <div class="message-avatar">🤖</div>
+                            <div class="message-content">
+                                <div class="message-text">您好！我是核医疗产业AI助手。您可以问我关于核医学、医用同位素、核药研发等方面的问题。例如：
+                                    <ul style="margin: 10px 0; padding-left: 20px;">
+                                        <li>Lu-177的半衰期是多少？</li>
+                                        <li>什么是靶向α治疗？</li>
+                                        <li>加速器和反应堆制备同位素有什么区别？</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 输入区域 -->
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea
+                                class="chat-input"
+                                id="chatInput"
+                                placeholder="输入您的问题..."
+                                rows="1"
+                                onkeydown="handleChatKeydown(event)"
+                            ></textarea>
+                            <button class="chat-send-btn" id="chatSendBtn" onclick="sendMessage()">
+                                <span class="send-icon">📤</span>
+                                <span class="send-text">发送</span>
+                            </button>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" onclick="clearChat()" title="清空对话">
+                                🗑️ 清空
+                            </button>
+                            <button class="chat-action-btn" onclick="exportChat()" title="导出对话">
+                                💾 导出
+                            </button>
+                            <div class="api-status" id="apiStatus">
+                                <span class="status-dot"></span>
+                                <span class="status-text">未连接</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷问题 -->
+                <div class="quick-questions">
+                    <div class="quick-questions-title">💬 快捷问题</div>
+                    <div class="quick-questions-list">
+                        <button class="quick-question-btn" onclick="askQuickQuestion('Lu-177的半衰期和主要应用是什么？')">
+                            Lu-177的半衰期和主要应用
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('什么是靶向α治疗？有哪些优势？')">
+                            靶向α治疗的原理和优势
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('加速器和反应堆制备同位素有什么区别？')">
+                            加速器vs反应堆制备同位素
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('Ac-225为什么被称为核医疗的明日之星？')">
+                            Ac-225的特点和前景
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('核医疗产业链包括哪些环节？')">
+                            核医疗产业链构成
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('医用同位素的安全性如何保障？')">
+                            医用同位素安全性
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('α射线和β射线的区别和应用是什么？')">
+                            α射线和β射线的区别和应用
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 元素周期表区域 -->
+        <section id="periodic-table" class="content-section">
+            <div class="section-header">
+                <span class="section-icon">⚛️</span>
+                <h2 class="section-title">核医学元素周期表<span class="info-badge">🔥 热门</span></h2>
+            </div>
+            <p style="color: #666; margin-bottom: 20px; font-size: 16px;">
+                交互式元素周期表，标注了关键医用同位素及其制备方式、应用领域和衰变动画演示。
+            </p>
+            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="color: #667eea; margin-bottom: 10px;">✨ 特色功能：</h4>
+                <ul style="color: #666; line-height: 2; padding-left: 20px;">
+                    <li>🎯 30+ 医用同位素详细信息</li>
+                    <li>🎬 Yb-176 → Lu-177 β⁻衰变动画演示</li>
+                    <li>🔗 制备途径可视化连线</li>
+                    <li>📊 Mo-99/Tc-99m 发生器工作原理动画</li>
+                </ul>
+            </div>
+            <button class="action-btn btn-primary" onclick="openPeriodicTable()">
+                🚀 打开完整元素周期表
+            </button>
+        </section>
+
+        <!-- 产业图谱资料 -->
+        <section id="industry" class="content-section">
+            <div class="section-header">
+                <span class="section-icon">🏭</span>
+                <h2 class="section-title">产业图谱资料</h2>
+            </div>
+
+            <!-- 过滤标签 -->
+            <div class="filter-tags">
+                <button class="filter-tag active" onclick="filterResources('all')">全部</button>
+                <button class="filter-tag" onclick="filterResources('技术文档')">技术文档</button>
+                <button class="filter-tag" onclick="filterResources('研发指南')">研发指南</button>
+                <button class="filter-tag" onclick="filterResources('产业规划')">产业规划</button>
+                <button class="filter-tag" onclick="filterResources('实施方案')">实施方案</button>
+            </div>
+
+            <div class="resources-grid" id="industryGrid">
+                <div class="resource-card" data-category="技术文档" data-keywords="医用同位素 制备 应用 加速器 反应堆">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadPDF('产业图谱/医用同位素的制备和医学应用领域.pdf')">⬇ 下载</button>
+                    <div class="card-icon">📄</div>
+                    <div class="card-title">医用同位素的制备和医学应用领域</div>
+                    <div class="card-description">详细介绍医用同位素的制备技术和临床应用场景，涵盖加速器制备、反应堆制备等多种技术路线。</div>
+                    <span class="card-tag">技术文档</span>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="view-btn view-btn-pdf" onclick="console.log('PDF按钮被点击'); openPDF('产业图谱/医用同位素的制备和医学应用领域.pdf'); return false;">
+                            📄 PDF版本
+                        </button>
+                        <button class="view-btn view-btn-html" onclick="console.log('HTML按钮被点击'); openHTMLVersion('产业图谱_html/医用同位素的制备和医学应用领域/index.html'); return false;">
+                            🌐 HTML版本
+                        </button>
+                    </div>
+                </div>
+
+                <div class="resource-card" data-category="研发指南" data-keywords="核药 研发 新药 市场 流程">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadPDF('产业图谱/核药新药研发简介.pdf')">⬇ 下载</button>
+                    <div class="card-icon">💊</div>
+                    <div class="card-title">核药新药研发简介</div>
+                    <div class="card-description">核药物研发流程、技术路线和市场前景分析，帮助了解核药研发的完整链条。</div>
+                    <span class="card-tag">研发指南</span>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="view-btn view-btn-pdf" onclick="openPDF('产业图谱/核药新药研发简介.pdf'); return false;">
+                            📄 PDF版本
+                        </button>
+                        <button class="view-btn view-btn-html" onclick="openHTMLVersion('产业图谱_html/核药新药研发简介/index.html'); return false;">
+                            🌐 HTML版本
+                        </button>
+                    </div>
+                </div>
+
+                <div class="resource-card" data-category="产业规划" data-keywords="泸州 产业 生态 前景 规划">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadPDF('产业图谱/泸州市核医疗产业生态前景图.pdf')">⬇ 下载</button>
+                    <div class="card-icon">🌐</div>
+                    <div class="card-title">泸州市核医疗产业生态前景图</div>
+                    <div class="card-description">泸州市核医疗产业布局和发展规划，展示区域产业生态和未来发展方向。</div>
+                    <span class="card-tag">产业规划</span>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="view-btn view-btn-pdf" onclick="openPDF('产业图谱/泸州市核医疗产业生态前景图.pdf'); return false;">
+                            📄 PDF版本
+                        </button>
+                        <button class="view-btn view-btn-html" onclick="openHTMLVersion('产业图谱_html/泸州市核医疗产业生态前景图/index.html'); return false;">
+                            🌐 HTML版本
+                        </button>
+                    </div>
+                </div>
+
+                <div class="resource-card" data-category="实施方案" data-keywords="同位素 研发 生产 泸州 方案">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadPDF('产业图谱/重点新型医用同位素研发、生产（泸州）方案.pdf')">⬇ 下载</button>
+                    <div class="card-icon">🔬</div>
+                    <div class="card-title">重点新型医用同位素研发、生产（泸州）方案</div>
+                    <div class="card-description">泸州市重点医用同位素研发和生产实施方案，包含具体的技术路线和实施计划。</div>
+                    <span class="card-tag">实施方案</span>
+                    <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="view-btn view-btn-pdf" onclick="openPDF('产业图谱/重点新型医用同位素研发、生产（泸州）方案.pdf'); return false;">
+                            📄 PDF版本
+                        </button>
+                        <button class="view-btn view-btn-html" onclick="openHTMLVersion('产业图谱_html/重点新型医用同位素研发、生产（泸州）方案/index.html'); return false;">
+                            🌐 HTML版本
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 基础知识资料 -->
+        <section id="knowledge" class="content-section">
+            <div class="section-header">
+                <span class="section-icon">📚</span>
+                <h2 class="section-title">基础知识资料</h2>
+            </div>
+            <div class="resources-grid" id="knowledgeGrid">
+                <div class="resource-card" data-category="基础知识" data-keywords="放射性药物 核素 配体 靶向 肿瘤 DNA损伤 细胞死亡 作用原理 结构 机制" onclick="window.open('放射性药物原理.html', '_blank')">
+                    <div class="card-icon">⚛️</div>
+                    <div class="card-title">放射性药物原理</div>
+                    <div class="card-description">交互式可视化图表，详细展示放射性药物的组成结构（放射性核素+配体）、体内分布过程、靶向肿瘤机制、能量释放路径、DNA损伤及细胞死亡全过程。支持悬停查看详情和点击交互。</div>
+                    <span class="card-tag">基础知识</span>
+                    <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                        <span class="tooltip">
+                            ℹ️ 点击查看
+                            <span class="tooltiptext">打开交互式可视化图表</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="resource-card" data-category="产业报告" data-keywords="核医疗 产业链 研究 报告 同位素 发展" onclick="window.open('产业图谱_html/核医疗产业链研究报告/index.html', '_blank')">
+                    <button class="download-btn" onclick="event.stopPropagation(); downloadPDF('产业图谱/核医疗产业链研究报告.pdf')">⬇ 下载</button>
+                    <div class="card-icon">📊</div>
+                    <div class="card-title">核医疗产业链研究报告</div>
+                    <div class="card-description">系统性介绍核医疗产业链的发展现状、技术路线、市场格局和未来趋势，是了解核医疗产业的重要参考资料。</div>
+                    <span class="card-tag">产业报告</span>
+                    <div style="margin-top: 10px; font-size: 12px; color: #999;">
+                        <span class="tooltip">
+                            ℹ️ 点击查看
+                            <span class="tooltiptext">在新窗口打开HTML文档</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核药发展历程 -->
+            <div class="dual-timeline-container">
+                <div class="dual-timeline-title">核药发展历程</div>
+                <div class="dual-timeline">
+                    <!-- 上方时间线 (1905-1987) -->
+                    <div class="timeline-row top">
+                        <div class="timeline-arrow-line"></div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1905</div>
+                            <div class="timeline-event">居里夫人（居里夫妇）进行了第一个一例临床的皮肤癌人体治疗</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1950</div>
+                            <div class="timeline-event">碘-131治疗一般甲状腺疾病碘131人体临床应用(RISA)</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1951</div>
+                            <div class="timeline-event">美国FDA批准碘化钠I-131用于甲状腺疾病</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1962</div>
+                            <div class="timeline-event">David Kuhl开发了第一台单光子发射计算机断层扫描仪(SPECT)</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1964</div>
+                            <div class="timeline-event">美国批准第一种诊断放射性核素试剂盒(125碘标记白蛋白)</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1971</div>
+                            <div class="timeline-event">美国医学界会正式承认核医学为医学专业</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1977</div>
+                            <div class="timeline-event">FDA批准铊-201用于心脏扫描</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1987</div>
+                            <div class="timeline-event">FDA批准Medi-Physics药维第一种临床主动靶向药物，碘123mIp</div>
+                        </div>
+                        <div class="timeline-curve"></div>
+                    </div>
+
+                    <!-- 下方时间线 (2018-1989) -->
+                    <div class="timeline-row bottom">
+                        <div class="timeline-arrow-line"></div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">2018</div>
+                            <div class="timeline-event">FDA 批准AAA的Lutathera(Lu-177药物标记)上市</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">2013</div>
+                            <div class="timeline-event">FDA批准拜耳的氯化镭223Ra上市</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1995</div>
+                            <div class="timeline-event">ADAC主动首批出售一台SPECT/PET两用</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1994</div>
+                            <div class="timeline-event">FDA批准TBF-FDG</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1993</div>
+                            <div class="timeline-event">FDA批准氟化钠F-89，用于骨骼断层扫描</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1992</div>
+                            <div class="timeline-event">FDA批准今年首批核医学药物批准任何批准，Indium-111 satumomab Pendetide</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1991</div>
+                            <div class="timeline-event">FDA批准第一种Tc-99m心肌断层</div>
+                        </div>
+                        <div class="timeline-node">
+                            <div class="timeline-year">1989</div>
+                            <div class="timeline-event">FDA批准第一种用于诊断的单克隆抗体(In-B2)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- PDF查看器模态框 -->
+    <div id="pdfModal" class="pdf-modal">
+        <div class="pdf-modal-content">
+            <!-- PDF侧边栏导航 -->
+            <div class="pdf-sidebar" id="pdfSidebar">
+                <div class="pdf-sidebar-header">
+                    <h3 class="pdf-sidebar-title">
+                        <span>📚</span>
+                        <span>文档导航</span>
+                    </h3>
+                </div>
+
+                <!-- 产业图谱分组 -->
+                <div class="pdf-nav-group">
+                    <div class="pdf-nav-group-title">🏭 产业图谱</div>
+                    <div class="pdf-nav-item" onclick="switchPDF('产业图谱/医用同位素的制备和医学应用领域.pdf')">
+                        <span class="pdf-nav-item-icon">📄</span>
+                        <span>医用同位素的制备和医学应用领域</span>
+                    </div>
+                    <div class="pdf-nav-item" onclick="switchPDF('产业图谱/核药新药研发简介.pdf')">
+                        <span class="pdf-nav-item-icon">💊</span>
+                        <span>核药新药研发简介</span>
+                    </div>
+                    <div class="pdf-nav-item" onclick="switchPDF('产业图谱/泸州市核医疗产业生态前景图.pdf')">
+                        <span class="pdf-nav-item-icon">🌐</span>
+                        <span>泸州市核医疗产业生态前景图</span>
+                    </div>
+                    <div class="pdf-nav-item" onclick="switchPDF('产业图谱/重点新型医用同位素研发、生产（泸州）方案.pdf')">
+                        <span class="pdf-nav-item-icon">🔬</span>
+                        <span>重点新型医用同位素研发、生产（泸州）方案</span>
+                    </div>
+                </div>
+
+                <!-- 基础知识分组 -->
+                <div class="pdf-nav-group">
+                    <div class="pdf-nav-group-title">📚 基础知识</div>
+                    <div class="pdf-nav-item" onclick="switchHTML('产业图谱_html/核医疗产业链研究报告/index.html')">
+                        <span class="pdf-nav-item-icon">📊</span>
+                        <span>核医疗产业链研究报告</span>
+                    </div>
+                </div>
+
+                <!-- 返回主页按钮 -->
+                <div style="padding: 20px;">
+                    <button class="pdf-back-home" onclick="closePDF()" title="返回主页" style="position: relative; top: 0; left: 0; width: 100%;">
+                        <span class="arrow">←</span>
+                        <span>返回主页</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 侧边栏折叠按钮 -->
+            <button class="pdf-sidebar-toggle" id="pdfSidebarToggle" onclick="togglePDFSidebar()">
+                <span id="toggleIcon">☰</span>
+            </button>
+
+            <button class="pdf-close" onclick="closePDF()" title="关闭 (ESC)">×</button>
+            <div id="pdfTitle" class="pdf-title"></div>
+
+            <!-- PDF加载动画 -->
+            <div id="pdfLoading" class="pdf-loading">
+                <div class="pdf-loading-spinner"></div>
+                <div class="pdf-loading-text">正在加载PDF文档...</div>
+            </div>
+
+            <iframe id="pdfFrame" class="pdf-frame"></iframe>
+
+            <!-- PDF工具栏 -->
+            <div class="pdf-toolbar">
+                <button class="pdf-toolbar-btn download" onclick="downloadCurrentPDF()" title="下载PDF">
+                    <span>📥</span>
+                    <span>下载</span>
+                </button>
+                <button class="pdf-toolbar-btn fullscreen" onclick="toggleFullscreen()" title="全屏查看">
+                    <span>⛶</span>
+                    <span>全屏</span>
+                </button>
+                <button class="pdf-toolbar-btn print" onclick="printPDF()" title="打印PDF">
+                    <span>🖨️</span>
+                    <span>打印</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HTML查看器模态框 -->
+    <div id="htmlModal" class="html-modal">
+        <div class="html-modal-content">
+            <!-- HTML侧边栏导航 -->
+            <div class="html-sidebar" id="htmlSidebar">
+                <div class="html-sidebar-header">
+                    <h3 class="html-sidebar-title">
+                        <span>🌐</span>
+                        <span>HTML文档导航</span>
+                    </h3>
+                </div>
+
+                <!-- 产业图谱分组 -->
+                <div class="html-nav-group">
+                    <div class="html-nav-group-title">🏭 产业图谱</div>
+                    <div class="html-nav-item" onclick="switchHTML('产业图谱_html/医用同位素的制备和医学应用领域/index.html')">
+                        <span class="html-nav-item-icon">📄</span>
+                        <span>医用同位素的制备和医学应用领域</span>
+                    </div>
+                    <div class="html-nav-item" onclick="switchHTML('产业图谱_html/核药新药研发简介/index.html')">
+                        <span class="html-nav-item-icon">💊</span>
+                        <span>核药新药研发简介</span>
+                    </div>
+                    <div class="html-nav-item" onclick="switchHTML('产业图谱_html/泸州市核医疗产业生态前景图/index.html')">
+                        <span class="html-nav-item-icon">🌐</span>
+                        <span>泸州市核医疗产业生态前景图</span>
+                    </div>
+                    <div class="html-nav-item" onclick="switchHTML('产业图谱_html/重点新型医用同位素研发、生产（泸州）方案/index.html')">
+                        <span class="html-nav-item-icon">🔬</span>
+                        <span>重点新型医用同位素研发、生产（泸州）方案</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 侧边栏折叠按钮 -->
+            <button class="html-sidebar-toggle" id="htmlSidebarToggle" onclick="toggleHTMLSidebar()">
+                <span id="htmlToggleIcon">☰</span>
+            </button>
+
+            <button class="html-close" onclick="closeHTML()" title="关闭 (ESC)">×</button>
+            <div id="htmlTitle" class="html-title"></div>
+
+            <!-- HTML加载动画 -->
+            <div id="htmlLoading" class="html-loading">
+                <div class="html-loading-spinner"></div>
+                <div class="html-loading-text">正在加载HTML文档...</div>
+            </div>
+
+            <iframe id="htmlFrame" class="html-frame" allowfullscreen></iframe>
+
+            <!-- HTML工具栏 -->
+            <div class="html-toolbar">
+                <button class="html-toolbar-btn download" onclick="downloadCurrentHTMLPDF()" title="下载原PDF">
+                    <span>📥</span>
+                    <span>下载PDF</span>
+                </button>
+                <button class="html-toolbar-btn fullscreen" onclick="toggleHTMLFullscreen()" title="全屏查看">
+                    <span>⛶</span>
+                    <span>全屏</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p class="footer-text">© MrZh2025 以上信息仅代表个人观点</p>
+    </div>
+
+    <script>
+        // 核素数据库 - 包含常见医用核素
+        const nuclidesDatabase = {
+            // 元素符号: [中文名, 原子序数, 常见同位素]
+            'H': ['氢', 1, ['H-3']],
+            'C': ['碳', 6, ['C-11', 'C-14']],
+            'N': ['氮', 7, ['N-13']],
+            'O': ['氧', 8, ['O-15']],
+            'F': ['氟', 9, ['F-18']],
+            'Na': ['钠', 11, ['Na-22', 'Na-24']],
+            'P': ['磷', 15, ['P-32', 'P-33']],
+            'S': ['硫', 16, ['S-35']],
+            'Cr': ['铬', 24, ['Cr-51']],
+            'Fe': ['铁', 26, ['Fe-59']],
+            'Co': ['钴', 27, ['Co-57', 'Co-60']],
+            'Ga': ['镓', 31, ['Ga-67', 'Ga-68']],
+            'Se': ['硒', 34, ['Se-75']],
+            'Kr': ['氪', 36, ['Kr-81m']],
+            'Sr': ['锶', 38, ['Sr-89', 'Sr-90']],
+            'Y': ['钇', 39, ['Y-90']],
+            'Tc': ['锝', 43, ['Tc-99m']],
+            'Ru': ['钌', 44, ['Ru-106']],
+            'Pd': ['钯', 46, ['Pd-103']],
+            'In': ['铟', 49, ['In-111']],
+            'I': ['碘', 53, ['I-123', 'I-125', 'I-131']],
+            'Xe': ['氙', 54, ['Xe-133']],
+            'Cs': ['铯', 55, ['Cs-137']],
+            'Sm': ['钐', 62, ['Sm-153']],
+            'Yb': ['镱', 70, ['Yb-176']],
+            'Lu': ['镥', 71, ['Lu-177']],
+            'Re': ['铼', 75, ['Re-186', 'Re-188']],
+            'Ir': ['铱', 77, ['Ir-192']],
+            'Au': ['金', 79, ['Au-198']],
+            'Tl': ['铊', 81, ['Tl-201']],
+            'Pb': ['铅', 82, ['Pb-212']],
+            'Bi': ['铋', 83, ['Bi-212', 'Bi-213']],
+            'Ra': ['镭', 88, ['Ra-223', 'Ra-226']],
+            'Ac': ['锕', 89, ['Ac-225']],
+            'Th': ['钍', 90, ['Th-227']],
+            'U': ['铀', 92, ['U-235', 'U-238']],
+            'Mo': ['钼', 42, ['Mo-99']],
+            'Ge': ['锗', 32, ['Ge-68']],
+            'Rb': ['铷', 37, ['Rb-82']]
+        };
+
+        // 核素别名映射
+        const nuclidesAliases = {
+            '氚': 'H-3',
+            '碳11': 'C-11',
+            '碳14': 'C-14',
+            '氮13': 'N-13',
+            '氧15': 'O-15',
+            '氟18': 'F-18',
+            '磷32': 'P-32',
+            '锝99m': 'Tc-99m',
+            '碘131': 'I-131',
+            '碘125': 'I-125',
+            '碘123': 'I-123',
+            '镥177': 'Lu-177',
+            '镱176': 'Yb-176',
+            '钼99': 'Mo-99',
+            '锶89': 'Sr-89',
+            '钇90': 'Y-90',
+            '钐153': 'Sm-153',
+            '铼188': 'Re-188',
+            '铼186': 'Re-186',
+            '镭223': 'Ra-223',
+            '锕225': 'Ac-225',
+            '铋213': 'Bi-213',
+            '铊201': 'Tl-201',
+            '镓68': 'Ga-68',
+            '镓67': 'Ga-67',
+            '铷82': 'Rb-82',
+            '锗68': 'Ge-68'
+        };
+
+        // 打开元素周期表
+        function openPeriodicTable(nuclide = null) {
+            if (nuclide) {
+                // 如果指定了核素，在URL中传递参数
+                window.open('yuansuzhouqibiao.html?highlight=' + encodeURIComponent(nuclide), '_blank');
+            } else {
+                window.open('yuansuzhouqibiao.html', '_blank');
+            }
+        }
+
+        // 打开数据大屏
+        function openDashboard() {
+            console.log('🚀 打开数据大屏按钮被点击');
+            console.log('当前页面URL:', window.location.href);
+            console.log('目标文件路径: dashboard.html');
+
+            try {
+                const newWindow = window.open('dashboard.html', '_blank');
+                if (newWindow) {
+                    console.log('✅ 数据大屏窗口已打开');
+                } else {
+                    console.error('❌ 窗口被浏览器拦截，请允许弹出窗口');
+                    alert('浏览器阻止了弹出窗口，请允许弹出窗口后重试，或者直接访问 dashboard.html');
+                }
+            } catch (error) {
+                console.error('❌ 打开数据大屏失败:', error);
+                alert('打开数据大屏失败: ' + error.message + '\n\n请尝试直接访问 dashboard.html 文件');
+            }
+        }
+
+        // 备用打开方式（在当前窗口打开）
+        function openDashboardAlt() {
+            console.log('🔄 使用备用方式打开数据大屏（当前窗口）');
+            window.location.href = 'dashboard.html';
+        }
+
+        // 当前打开的PDF路径
+        let currentPDFPath = '';
+        let pdfLoadTimeout = null;
+
+        // 打开PDF文件（在模态框中打开）
+        function openPDF(pdfPath) {
+            const modal = document.getElementById('pdfModal');
+            const frame = document.getElementById('pdfFrame');
+            const loading = document.getElementById('pdfLoading');
+
+            // 保存当前PDF路径
+            currentPDFPath = pdfPath;
+
+            // 显示模态框和加载动画
+            modal.style.display = 'block';
+            modal.style.opacity = '1';
+            loading.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // 加载PDF
+            frame.src = pdfPath;
+
+            // 更新导航高亮
+            updatePDFNavigation(pdfPath);
+
+            // 设置加载超时
+            pdfLoadTimeout = setTimeout(() => {
+                loading.style.display = 'none';
+            }, 3000);
+
+            // 监听加载完成
+            frame.onload = function() {
+                if (pdfLoadTimeout) {
+                    clearTimeout(pdfLoadTimeout);
+                    pdfLoadTimeout = null;
+                }
+                loading.style.display = 'none';
+            };
+        }
+
+        // 切换PDF文档
+        function switchPDF(pdfPath) {
+            openPDF(pdfPath);
+        }
+
+        // 更新PDF导航高亮
+        function updatePDFNavigation(pdfPath) {
+            const navItems = document.querySelectorAll('.pdf-nav-item');
+            navItems.forEach(item => {
+                const itemPath = item.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (itemPath === pdfPath) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // 切换侧边栏显示
+        function togglePDFSidebar() {
+            const sidebar = document.getElementById('pdfSidebar');
+            const toggleIcon = document.getElementById('toggleIcon');
+            sidebar.classList.toggle('show');
+            toggleIcon.textContent = sidebar.classList.contains('show') ? '✕' : '☰';
+        }
+
+        // 关闭PDF查看器
+        function closePDF() {
+            const modal = document.getElementById('pdfModal');
+            const frame = document.getElementById('pdfFrame');
+            const sidebar = document.getElementById('pdfSidebar');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            // 清除超时计时器
+            if (pdfLoadTimeout) {
+                clearTimeout(pdfLoadTimeout);
+                pdfLoadTimeout = null;
+            }
+
+            // 隐藏侧边栏并重置图标
+            if (sidebar) {
+                sidebar.classList.remove('show');
+            }
+            if (toggleIcon) {
+                toggleIcon.textContent = '☰';
+            }
+
+            // 添加淡出动画
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                frame.src = '';
+                currentPDFPath = '';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // HTML查看器相关变量
+        let currentHTMLPath = '';
+        let htmlLoadTimeout = null;
+
+        // HTML到PDF的路径映射
+        const htmlToPdfMap = {
+            '产业图谱_html/医用同位素的制备和医学应用领域/index.html': '产业图谱/医用同位素的制备和医学应用领域.pdf',
+            '产业图谱_html/核药新药研发简介/index.html': '产业图谱/核药新药研发简介.pdf',
+            '产业图谱_html/泸州市核医疗产业生态前景图/index.html': '产业图谱/泸州市核医疗产业生态前景图.pdf',
+            '产业图谱_html/重点新型医用同位素研发、生产（泸州）方案/index.html': '产业图谱/重点新型医用同位素研发、生产（泸州）方案.pdf',
+            '产业图谱_html/核医疗产业链研究报告/index.html': '产业图谱/核医疗产业链研究报告.pdf'
+        };
+
+        // 打开HTML版本文档（在新窗口中打开）
+        function openHTMLVersion(htmlPath) {
+            console.log('🌐 [openHTMLVersion] 函数被调用，路径:', htmlPath);
+            console.log('🌐 [openHTMLVersion] 调用堆栈:', new Error().stack);
+
+            // 尝试打开新窗口
+            const newWindow = window.open(htmlPath, '_blank');
+
+            // 检查是否被浏览器拦截
+            if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                // 被拦截，提示用户
+                alert('⚠️ 浏览器阻止了弹窗！\n\n请点击地址栏的弹窗拦截图标，允许此网站的弹窗。\n或者按住 Ctrl 键再点击按钮。');
+                console.warn('弹窗被浏览器拦截');
+            } else {
+                console.log('✅ 新窗口已打开');
+            }
+        }
+
+        // 打开HTML文档
+        function openHTML(htmlPath) {
+            console.log('📂 openHTML被调用，路径:', htmlPath);
+
+            const modal = document.getElementById('htmlModal');
+            const frame = document.getElementById('htmlFrame');
+            const loading = document.getElementById('htmlLoading');
+            const sidebar = document.getElementById('htmlSidebar');
+
+            console.log('🔍 模态框元素:', modal);
+            console.log('🔍 iframe元素:', frame);
+            console.log('🔍 加载动画元素:', loading);
+
+            if (!modal || !frame || !loading) {
+                console.error('❌ 缺少必要的DOM元素！');
+                return;
+            }
+
+            // 保存当前HTML路径
+            currentHTMLPath = htmlPath;
+
+            // 显示模态框和加载动画
+            console.log('✅ 开始显示模态框...');
+            modal.style.display = 'block';
+            modal.style.opacity = '1';
+            loading.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            console.log('✅ 模态框已设置为显示');
+
+            // 侧边栏默认隐藏，用户可以通过按钮打开
+            // sidebar.classList.add('show');
+
+            // 加载HTML
+            console.log('📄 设置iframe src:', htmlPath);
+            frame.src = htmlPath;
+
+            // 更新导航高亮
+            updateHTMLNavigation(htmlPath);
+
+            // 设置加载超时
+            htmlLoadTimeout = setTimeout(() => {
+                console.log('⏱️ 加载超时，隐藏加载动画');
+                loading.style.display = 'none';
+            }, 3000);
+
+            // 监听加载完成
+            frame.onload = function() {
+                console.log('✅ iframe加载完成');
+                if (htmlLoadTimeout) {
+                    clearTimeout(htmlLoadTimeout);
+                    htmlLoadTimeout = null;
+                }
+                loading.style.display = 'none';
+                console.log('✅ 加载动画已隐藏');
+            };
+
+            // 监听加载错误
+            frame.onerror = function() {
+                console.error('❌ iframe加载失败');
+                loading.innerHTML = '<div class="html-loading-text">加载失败，请检查文件路径</div>';
+            };
+        }
+
+        // 切换HTML文档
+        function switchHTML(htmlPath) {
+            openHTML(htmlPath);
+        }
+
+        // 更新HTML导航高亮
+        function updateHTMLNavigation(htmlPath) {
+            const navItems = document.querySelectorAll('.html-nav-item');
+            navItems.forEach(item => {
+                const itemPath = item.getAttribute('onclick').match(/'([^']+)'/)[1];
+                if (itemPath === htmlPath) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // 切换HTML侧边栏显示
+        function toggleHTMLSidebar() {
+            const sidebar = document.getElementById('htmlSidebar');
+            const toggleIcon = document.getElementById('htmlToggleIcon');
+            sidebar.classList.toggle('show');
+            toggleIcon.textContent = sidebar.classList.contains('show') ? '◀' : '☰';
+        }
+
+        // 关闭HTML查看器
+        function closeHTML() {
+            console.log('🚪 关闭HTML查看器');
+            // 先退出全屏
+            if (document.fullscreenElement) {
+                document.exitFullscreen().then(() => {
+                    actualCloseHTML();
+                }).catch(() => {
+                    actualCloseHTML();
+                });
+            } else {
+                actualCloseHTML();
+            }
+        }
+
+        // 实际关闭HTML查看器的函数
+        function actualCloseHTML() {
+            console.log('🚪 执行实际关闭操作');
+            const modal = document.getElementById('htmlModal');
+            const frame = document.getElementById('htmlFrame');
+            const sidebar = document.getElementById('htmlSidebar');
+            const toggleIcon = document.getElementById('htmlToggleIcon');
+
+            // 清除超时计时器
+            if (htmlLoadTimeout) {
+                clearTimeout(htmlLoadTimeout);
+                htmlLoadTimeout = null;
+            }
+
+            // 隐藏侧边栏并重置图标
+            if (sidebar) {
+                sidebar.classList.remove('show');
+            }
+            if (toggleIcon) {
+                toggleIcon.textContent = '☰';
+            }
+
+            // 添加淡出动画
+            modal.style.opacity = '0';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                frame.src = '';
+                currentHTMLPath = '';
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+
+        // 下载当前HTML对应的PDF文件
+        function downloadCurrentHTMLPDF() {
+            if (currentHTMLPath && htmlToPdfMap[currentHTMLPath]) {
+                const pdfPath = htmlToPdfMap[currentHTMLPath];
+                downloadPDF(pdfPath);
+            }
+        }
+
+        // HTML查看器全屏切换
+        function toggleHTMLFullscreen() {
+            const modal = document.getElementById('htmlModal');
+
+            if (!document.fullscreenElement) {
+                modal.requestFullscreen().catch(err => {
+                    console.log('无法进入全屏模式:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 下载PDF文件
+        function downloadPDF(pdfPath) {
+            const link = document.createElement('a');
+            link.href = pdfPath;
+            link.download = pdfPath.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // 下载当前打开的PDF
+        function downloadCurrentPDF() {
+            if (currentPDFPath) {
+                downloadPDF(currentPDFPath);
+            }
+        }
+
+        // 全屏切换
+        function toggleFullscreen() {
+            const modal = document.getElementById('pdfModal');
+
+            if (!document.fullscreenElement) {
+                modal.requestFullscreen().catch(err => {
+                    console.log('无法进入全屏模式:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // 打印PDF
+        function printPDF() {
+            const frame = document.getElementById('pdfFrame');
+            if (frame && frame.contentWindow) {
+                try {
+                    frame.contentWindow.print();
+                } catch (e) {
+                    // 如果iframe打印失败,打开新窗口打印
+                    if (currentPDFPath) {
+                        window.open(currentPDFPath, '_blank');
+                    }
+                }
+            }
+        }
+
+        // 滚动到指定区域
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // 返回顶部
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 搜索核素
+        function searchNuclide(searchTerm) {
+            // 检查是否是核素别名
+            if (nuclidesAliases[searchTerm]) {
+                return nuclidesAliases[searchTerm];
+            }
+
+            // 检查是否是元素符号
+            for (let symbol in nuclidesDatabase) {
+                const [chineseName, atomicNumber, isotopes] = nuclidesDatabase[symbol];
+
+                // 匹配元素符号（不区分大小写）
+                if (symbol.toLowerCase() === searchTerm) {
+                    return symbol;
+                }
+
+                // 匹配中文名
+                if (chineseName === searchTerm) {
+                    return symbol;
+                }
+
+                // 匹配同位素
+                for (let isotope of isotopes) {
+                    if (isotope.toLowerCase() === searchTerm ||
+                        isotope.toLowerCase().replace('-', '') === searchTerm) {
+                        return isotope;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // 搜索资源
+        function searchResources() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const allCards = document.querySelectorAll('.resource-card');
+            let visibleCount = 0;
+
+            // 如果搜索框为空，显示所有卡片
+            if (!searchTerm) {
+                allCards.forEach(card => {
+                    card.style.display = 'block';
+                });
+                hideNuclideHint();
+                return;
+            }
+
+            // 首先检查是否是核素搜索
+            const nuclideMatch = searchNuclide(searchTerm);
+            if (nuclideMatch) {
+                showNuclideHint(nuclideMatch, searchTerm);
+            } else {
+                hideNuclideHint();
+            }
+
+            // 搜索资料卡片
+            allCards.forEach(card => {
+                const title = card.querySelector('.card-title') ? card.querySelector('.card-title').textContent.toLowerCase() : '';
+                const description = card.querySelector('.card-description') ? card.querySelector('.card-description').textContent.toLowerCase() : '';
+                const keywords = (card.getAttribute('data-keywords') || '').toLowerCase();
+                const category = (card.getAttribute('data-category') || '').toLowerCase();
+
+                if (title.includes(searchTerm) ||
+                    description.includes(searchTerm) ||
+                    keywords.includes(searchTerm) ||
+                    category.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // 如果没有搜索结果，在控制台显示提示
+            if (visibleCount === 0 && !nuclideMatch) {
+                console.log('没有找到匹配的资源，搜索词：' + searchTerm);
+            } else if (visibleCount > 0) {
+                console.log('找到 ' + visibleCount + ' 个匹配的资源');
+            }
+        }
+
+        // 当前搜索到的核素
+        let currentNuclide = null;
+
+        // 显示核素提示
+        function showNuclideHint(nuclide, searchTerm) {
+            currentNuclide = nuclide;
+            const hint = document.getElementById('nuclideHint');
+            const nameElement = document.getElementById('nuclideName');
+
+            // 获取核素信息
+            let displayName = nuclide;
+            for (let symbol in nuclidesDatabase) {
+                const [chineseName, atomicNumber, isotopes] = nuclidesDatabase[symbol];
+                if (symbol === nuclide || isotopes.includes(nuclide)) {
+                    displayName = `${nuclide} (${chineseName})`;
+                    break;
+                }
+            }
+
+            nameElement.textContent = displayName;
+            hint.classList.add('visible');
+        }
+
+        // 隐藏核素提示
+        function hideNuclideHint() {
+            currentNuclide = null;
+            const hint = document.getElementById('nuclideHint');
+            hint.classList.remove('visible');
+        }
+
+        // 在元素周期表中打开核素
+        function openNuclideInTable() {
+            if (currentNuclide) {
+                openPeriodicTable(currentNuclide);
+            }
+        }
+
+        // 清除搜索
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            searchResources();
+            toggleClearButton();
+            hideNuclideHint();
+        }
+
+        // 切换清除按钮显示
+        function toggleClearButton() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('searchClear');
+            if (searchInput.value.trim()) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+        }
+
+        // 过滤资源
+        function filterResources(category) {
+            const cards = document.querySelectorAll('#industryGrid .resource-card');
+            const tags = document.querySelectorAll('.filter-tag');
+
+            // 更新标签状态
+            tags.forEach(tag => {
+                tag.classList.remove('active');
+                if (tag.textContent === category || (category === 'all' && tag.textContent === '全部')) {
+                    tag.classList.add('active');
+                }
+            });
+
+            // 过滤卡片
+            cards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const cardCategory = card.getAttribute('data-category');
+                    card.style.display = cardCategory === category ? 'block' : 'none';
+                }
+            });
+        }
+
+        // 显示/隐藏返回顶部按钮
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // 页面加载完成后的动画
+        window.addEventListener('load', function() {
+            // 数字动画
+            animateNumber('elementCount', 118, 2000);
+            animateNumber('resourceCount', 5, 1500);
+
+            // 进度条动画
+            setTimeout(() => {
+                document.querySelectorAll('.progress-fill').forEach(bar => {
+                    const targetWidth = bar.getAttribute('data-width');
+                    bar.style.width = targetWidth;
+                });
+            }, 500);
+        });
+
+        // 数字递增动画
+        function animateNumber(elementId, target, duration) {
+            const element = document.getElementById(elementId);
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + (elementId === 'isotopeCount' ? '+' : '');
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + (elementId === 'isotopeCount' ? '+' : '');
+                }
+            }, 16);
+        }
+
+        // ESC键关闭PDF查看器
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePDF();
+            }
+        });
+
+        // 点击模态框背景关闭
+        document.getElementById('pdfModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closePDF();
+            }
+        });
+
+        // 平滑滚动导航
+        document.querySelectorAll('.nav-menu a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                scrollToSection(targetId);
+            });
+        });
+
+        // 产业图谱卡片点击事件已移除
+        // 现在按钮使用onclick属性直接调用函数，不需要额外的事件监听器
+
+        // 监听来自iframe的消息（HTML文档返回主页和全屏请求）
+        window.addEventListener('message', function(event) {
+            // 检查消息来源和内容
+            if (event.data && event.data.action === 'closeHTML') {
+                closeHTML();
+            } else if (event.data && event.data.action === 'toggleFullscreen') {
+                toggleHTMLFullscreen();
+            }
+        });
+
+        // 键盘快捷键 - ESC关闭HTML查看器
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const htmlModal = document.getElementById('htmlModal');
+                if (htmlModal && htmlModal.style.display === 'block') {
+                    closeHTML();
+                }
+            }
+        });
+
+        // ==================== AI问答功能 ====================
+
+        // 豆包API配置
+        const DOUBAO_CONFIG = {
+            apiKey: '1bdf15d2-23b9-4b71-8ecd-651d75c89663',
+            baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
+            modelId: 'doubao-seed-1-6-251015'
+        };
+
+        // 对话历史
+        let conversationHistory = [];
+
+        // 检查API连接状态
+        async function checkAPIStatus() {
+            const statusElement = document.getElementById('apiStatus');
+            // 直接调用豆包API，始终显示已连接
+            statusElement.classList.add('connected');
+            statusElement.querySelector('.status-text').textContent = '就绪';
+            return true;
+        }
+
+        // 页面加载时设置状态并预热连接
+        if (document.getElementById('apiStatus')) {
+            checkAPIStatus();
+
+            // 预热DNS和TCP连接，加快首次请求速度
+            const link = document.createElement('link');
+            link.rel = 'dns-prefetch';
+            link.href = 'https://ark.cn-beijing.volces.com';
+            document.head.appendChild(link);
+
+            const preconnect = document.createElement('link');
+            preconnect.rel = 'preconnect';
+            preconnect.href = 'https://ark.cn-beijing.volces.com';
+            document.head.appendChild(preconnect);
+        }
+
+        // 防止重复发送的标志
+        let isSending = false;
+
+        // 发送消息
+        async function sendMessage() {
+            // 防止重复发送
+            if (isSending) {
+                return;
+            }
+
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) {
+                return;
+            }
+
+            // 设置发送标志
+            isSending = true;
+
+            // 添加用户消息到界面
+            addMessage(message, 'user');
+
+            // 清空输入框
+            input.value = '';
+            input.style.height = 'auto';
+
+            // 禁用发送按钮
+            const sendBtn = document.getElementById('chatSendBtn');
+            sendBtn.disabled = true;
+
+            // 显示加载动画
+            const loadingId = addLoadingMessage();
+
+            try {
+                // 构建消息列表
+                const messages = [];
+
+                // 添加系统提示词（精简版，加快响应）
+                messages.push({
+                    role: 'system',
+                    content: '你是核医疗产业专家。用自然文段格式回答，不用markdown符号和列表。控制在150-200字，直接陈述，专业但通俗。用中文。'
+                });
+
+                // 添加历史对话（只保留最近3轮，减少token消耗）
+                if (conversationHistory.length > 0) {
+                    const recentHistory = conversationHistory.slice(-6); // 最近3轮对话（6条消息）
+                    messages.push(...recentHistory);
+                }
+
+                // 添加当前消息
+                messages.push({
+                    role: 'user',
+                    content: message
+                });
+
+                // 创建超时控制器（15秒超时）
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+                // 直接调用豆包API（优化参数以加快响应）
+                const response = await fetch(`${DOUBAO_CONFIG.baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DOUBAO_CONFIG.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: DOUBAO_CONFIG.modelId,
+                        messages: messages,
+                        temperature: 0.5,  // 降低随机性，加快生成速度
+                        max_tokens: 500,   // 减少最大token数，显著加快响应
+                        top_p: 0.85,       // 降低采样范围，提高速度
+                        presence_penalty: 0.3,  // 减少重复，提高效率
+                        frequency_penalty: 0.3  // 减少冗余，加快生成
+                    }),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`API调用失败: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                // 移除加载动画
+                removeLoadingMessage(loadingId);
+
+                // 获取AI回复
+                const aiResponse = data.choices[0].message.content;
+
+                // 添加AI回复到界面
+                addMessage(aiResponse, 'assistant');
+
+                // 更新对话历史
+                conversationHistory.push(
+                    { role: 'user', content: message },
+                    { role: 'assistant', content: aiResponse }
+                );
+
+                // 限制历史记录长度（只保留最近5轮对话，加快响应速度）
+                if (conversationHistory.length > 10) {
+                    conversationHistory = conversationHistory.slice(-10);
+                }
+
+            } catch (error) {
+                removeLoadingMessage(loadingId);
+                console.error('发送消息失败:', error);
+
+                // 根据错误类型给出不同提示
+                let errorMsg = '抱歉，发送消息失败。';
+                if (error.name === 'AbortError') {
+                    errorMsg += '请求超时，请检查网络连接后重试。';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMsg += '网络连接失败，请检查网络后重试。';
+                } else {
+                    errorMsg += '错误：' + error.message;
+                }
+
+                addMessage(errorMsg, 'assistant');
+            } finally {
+                // 启用发送按钮并重置发送标志
+                sendBtn.disabled = false;
+                isSending = false;
+            }
+        }
+
+        // 添加消息到聊天界面
+        function addMessage(text, role) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = role === 'user' ? '👤' : '🤖';
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+
+            const messageText = document.createElement('div');
+            messageText.className = 'message-text';
+            messageText.innerHTML = formatMessage(text);
+
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            time.textContent = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+
+            content.appendChild(messageText);
+            content.appendChild(time);
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+
+            messagesContainer.appendChild(messageDiv);
+
+            // 滚动到底部
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 格式化消息（去AI化处理）
+        function formatMessage(text) {
+            // 转义HTML
+            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // 移除markdown标题符号（###、##等）
+            text = text.replace(/^#{1,6}\s+/gm, '');
+
+            // 移除markdown粗体符号但保留内容
+            text = text.replace(/\*\*(.+?)\*\*/g, '$1');
+
+            // 移除markdown斜体符号但保留内容
+            text = text.replace(/\*(.+?)\*/g, '$1');
+
+            // 移除markdown代码符号但保留内容
+            text = text.replace(/`(.+?)`/g, '$1');
+
+            // 移除列表符号（- 、* 、1. 等）
+            text = text.replace(/^[\-\*]\s+/gm, '');
+            text = text.replace(/^\d+\.\s+/gm, '');
+
+            // 支持换行，将连续两个换行转为段落分隔
+            text = text.replace(/\n\n/g, '<br><br>');
+            text = text.replace(/\n/g, '<br>');
+
+            return text;
+        }
+
+        // 添加加载动画
+        function addLoadingMessage() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            const loadingId = 'loading-' + Date.now();
+            messageDiv.id = loadingId;
+            messageDiv.className = 'chat-message assistant';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = '🤖';
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+
+            const messageText = document.createElement('div');
+            messageText.className = 'message-text';
+            messageText.innerHTML = `
+                <div class="message-loading">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+
+            content.appendChild(messageText);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            return loadingId;
+        }
+
+        // 移除加载动画
+        function removeLoadingMessage(loadingId) {
+            const loadingElement = document.getElementById(loadingId);
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+
+        // 处理输入框回车事件
+        function handleChatKeydown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        // 快捷问题
+        function askQuickQuestion(question) {
+            const input = document.getElementById('chatInput');
+            input.value = question;
+            input.focus();
+
+            // 自动调整输入框高度
+            input.style.height = 'auto';
+            input.style.height = input.scrollHeight + 'px';
+
+            // 自动发送
+            setTimeout(() => {
+                sendMessage();
+            }, 300);
+        }
+
+        // 清空对话
+        function clearChat() {
+            if (confirm('确定要清空所有对话记录吗？')) {
+                const messagesContainer = document.getElementById('chatMessages');
+
+                // 保留欢迎消息
+                const welcomeMessage = messagesContainer.querySelector('.chat-message.assistant');
+                messagesContainer.innerHTML = '';
+                if (welcomeMessage) {
+                    messagesContainer.appendChild(welcomeMessage.cloneNode(true));
+                }
+
+                // 清空历史记录
+                conversationHistory = [];
+
+                console.log('对话已清空');
+            }
+        }
+
+        // 导出对话
+        function exportChat() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messages = messagesContainer.querySelectorAll('.chat-message');
+
+            if (messages.length <= 1) {
+                alert('暂无对话记录可导出');
+                return;
+            }
+
+            let exportText = '核医疗产业AI问答记录\n';
+            exportText += '导出时间：' + new Date().toLocaleString('zh-CN') + '\n';
+            exportText += '=' .repeat(50) + '\n\n';
+
+            messages.forEach((msg, index) => {
+                if (index === 0) return; // 跳过欢迎消息
+
+                const role = msg.classList.contains('user') ? '用户' : 'AI助手';
+                const text = msg.querySelector('.message-text').textContent.trim();
+                const time = msg.querySelector('.message-time')?.textContent || '';
+
+                exportText += `[${role}] ${time}\n`;
+                exportText += text + '\n\n';
+            });
+
+            // 创建下载链接
+            const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `AI问答记录_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            console.log('对话已导出');
+        }
+
+        // 自动调整输入框高度
+        if (document.getElementById('chatInput')) {
+            document.getElementById('chatInput').addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+        }
+
+        // 图片放大功能
+        function enlargeImage(img) {
+            // 创建遮罩层
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 10000;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: zoom-out;
+                animation: fadeIn 0.3s ease;
+            `;
+
+            // 创建放大的图片
+            const enlargedImg = document.createElement('img');
+            enlargedImg.src = img.src;
+            enlargedImg.alt = img.alt;
+            enlargedImg.style.cssText = `
+                max-width: 95%;
+                max-height: 95%;
+                border-radius: 10px;
+                box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+                animation: zoomIn 0.3s ease;
+            `;
+
+            // 添加关闭提示
+            const closeHint = document.createElement('div');
+            closeHint.textContent = '点击任意位置或按ESC键关闭';
+            closeHint.style.cssText = `
+                position: absolute;
+                top: 20px;
+                color: white;
+                font-size: 16px;
+                background: rgba(0, 0, 0, 0.6);
+                padding: 10px 20px;
+                border-radius: 20px;
+            `;
+
+            overlay.appendChild(enlargedImg);
+            overlay.appendChild(closeHint);
+            document.body.appendChild(overlay);
+
+            // 点击遮罩层关闭
+            overlay.addEventListener('click', function() {
+                overlay.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (document.body.contains(overlay)) {
+                        document.body.removeChild(overlay);
+                    }
+                }, 300);
+            });
+
+            // ESC键关闭
+            const closeOnEsc = function(e) {
+                if (e.key === 'Escape') {
+                    overlay.style.animation = 'fadeOut 0.3s ease';
+                    setTimeout(() => {
+                        if (document.body.contains(overlay)) {
+                            document.body.removeChild(overlay);
+                        }
+                    }, 300);
+                    document.removeEventListener('keydown', closeOnEsc);
+                }
+            };
+            document.addEventListener('keydown', closeOnEsc);
+        }
+
+        // 添加动画样式
+        const animationStyle = document.createElement('style');
+        animationStyle.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+            @keyframes zoomIn {
+                from { transform: scale(0.8); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(animationStyle);
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', function() {
+            // 测试openDashboard函数是否可用
+            console.log('✅ 页面加载完成');
+            console.log('✅ openDashboard函数类型:', typeof openDashboard);
+            if (typeof openDashboard === 'function') {
+                console.log('✅ openDashboard函数已正确定义');
+            } else {
+                console.error('❌ openDashboard函数未定义');
+            }
+
+            // 添加页面元素进入动画
+            initScrollAnimations();
+
+            // 添加导航栏激活状态
+            updateNavActiveState();
+        });
+
+        // 滚动动画初始化
+        function initScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('fade-in');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            // 观察所有内容区域
+            document.querySelectorAll('.content-section, .resource-card').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 更新导航栏激活状态
+        function updateNavActiveState() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-menu a');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= sectionTop - 200) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // 平滑滚动到指定区域
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                const offsetTop = element.offsetTop - 80;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
